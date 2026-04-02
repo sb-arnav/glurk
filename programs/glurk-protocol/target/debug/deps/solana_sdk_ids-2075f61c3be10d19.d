@@ -1,7 +1,0 @@
-/home/arnav/glurk/programs/glurk-protocol/target/debug/deps/solana_sdk_ids-2075f61c3be10d19.d: /home/arnav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-sdk-ids-2.2.1/src/lib.rs
-
-/home/arnav/glurk/programs/glurk-protocol/target/debug/deps/libsolana_sdk_ids-2075f61c3be10d19.rlib: /home/arnav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-sdk-ids-2.2.1/src/lib.rs
-
-/home/arnav/glurk/programs/glurk-protocol/target/debug/deps/libsolana_sdk_ids-2075f61c3be10d19.rmeta: /home/arnav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-sdk-ids-2.2.1/src/lib.rs
-
-/home/arnav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/solana-sdk-ids-2.2.1/src/lib.rs:

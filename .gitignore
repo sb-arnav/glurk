@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# rust / anchor
+**/target/
+**/*.so
+!target/deploy/glurk_protocol.so
+!target/idl/glurk_protocol.json
