@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 
-// Mock user credentials (in production, read from Solana via wallet)
+// Demo credentials — in production these are fetched from Solana via the user's connected wallet
 const USER_CREDENTIALS = [
   { slug: "credit-score", name: "Credit Score", tier: "gold", score: 78, issuer: "Staq" },
   { slug: "stocks", name: "Stock Market Basics", tier: "gold", score: 88, issuer: "Staq" },
@@ -12,7 +12,8 @@ const USER_CREDENTIALS = [
   { slug: "sell-rules", name: "Sell Rules", tier: "gold", score: 80, issuer: "Staq" },
 ];
 
-const USER = {
+// Demo wallet — in production from window.solana.connect()
+const DEMO_USER = {
   name: "Arnav",
   wallet: "AQEWftBuELL2vUHdwj7yYN3gMsRHbzJJjRGgdPyAQ8vN",
   glurkScore: 680,
@@ -25,9 +26,144 @@ const TIER_COLORS: Record<string, string> = {
   bronze: "#CD7F32",
 };
 
+// Phantom wallet icon SVG
+function PhantomIcon({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 128 128" fill="none">
+      <rect width="128" height="128" rx="28" fill="#AB9FF2" />
+      <path
+        d="M110.584 65.5c0 24.853-20.147 45-45 45-24.854 0-45-20.147-45-45s20.146-45 45-45c24.853 0 45 20.147 45 45Z"
+        fill="white"
+      />
+      <path
+        d="M56.5 48.5c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10Z"
+        fill="#AB9FF2"
+      />
+      <path
+        d="M78.5 48.5c-5.523 0-10 4.477-10 10s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10Z"
+        fill="#AB9FF2"
+      />
+      <circle cx="53" cy="58" r="3.5" fill="white" />
+      <circle cx="75" cy="58" r="3.5" fill="white" />
+    </svg>
+  );
+}
+
+function WalletConnectPrompt({ onConnect }: { onConnect: () => void }) {
+  const [connecting, setConnecting] = useState(false);
+
+  const handleConnect = () => {
+    setConnecting(true);
+    // Simulate wallet connection delay
+    setTimeout(() => {
+      onConnect();
+    }, 900);
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-[380px]">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-sm font-black text-white/30">
+            G
+          </div>
+          <p className="text-xs text-white/30 font-mono tracking-widest uppercase">
+            Glurk Protocol
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
+          <h2 className="text-lg font-bold mb-1">Connect your wallet</h2>
+          <p className="text-sm text-white/35 mb-6 leading-relaxed">
+            Glurk reads your on-chain credentials and presents them to apps you
+            authorize. Your wallet signature is your consent.
+          </p>
+
+          <div className="space-y-2">
+            <button
+              onClick={handleConnect}
+              disabled={connecting}
+              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-[#AB9FF2]/10 border border-[#AB9FF2]/25 hover:bg-[#AB9FF2]/15 hover:border-[#AB9FF2]/40 transition-all disabled:opacity-60"
+            >
+              <PhantomIcon size={24} />
+              <span className="font-semibold text-sm flex-1 text-left">
+                {connecting ? "Connecting..." : "Phantom"}
+              </span>
+              {connecting ? (
+                <svg
+                  className="animate-spin w-4 h-4 text-white/30"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeDasharray="31.4"
+                    strokeDashoffset="10"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-white/25"
+                >
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              )}
+            </button>
+
+            <button
+              onClick={handleConnect}
+              disabled={connecting}
+              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] transition-all disabled:opacity-40 text-white/40"
+            >
+              <div className="w-6 h-6 rounded-full bg-[#F08B00]/20 border border-[#F08B00]/30 flex items-center justify-center text-[10px] font-black text-[#F08B00]">
+                S
+              </div>
+              <span className="font-semibold text-sm flex-1 text-left text-white/50">
+                Solflare
+              </span>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-white/20"
+              >
+                <path d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <p className="text-[11px] text-white/15 mt-5 text-center leading-relaxed">
+            Demo mode — connects a test wallet with Staq credentials pre-loaded
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ConsentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const [walletConnected, setWalletConnected] = useState(false);
   const [approved, setApproved] = useState(false);
   const [denied, setDenied] = useState(false);
 
@@ -39,9 +175,14 @@ function ConsentContent() {
   const contributionTier = searchParams.get("contribute_tier") || "gold";
   const callbackUrl = searchParams.get("callback") || "/demo/lend";
 
+  const USER = DEMO_USER;
   const requestedCredentials = USER_CREDENTIALS.filter((c) =>
     requestedFields.includes(c.slug)
   );
+
+  if (!walletConnected) {
+    return <WalletConnectPrompt onConnect={() => setWalletConnected(true)} />;
+  }
 
   const handleApprove = () => {
     setApproved(true);
@@ -69,7 +210,16 @@ function ConsentContent() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00E5A0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#10B981"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 12l5 5L20 7" />
             </svg>
           </div>
@@ -85,7 +235,16 @@ function ConsentContent() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#ef4444"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </div>
@@ -101,10 +260,12 @@ function ConsentContent() {
       <div className="w-full max-w-[400px]">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-2xl">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-sm font-black text-white/30">
             G
           </div>
-          <p className="text-xs text-white/30 font-mono tracking-widest uppercase">Glurk Protocol</p>
+          <p className="text-xs text-white/30 font-mono tracking-widest uppercase">
+            Glurk Protocol
+          </p>
         </div>
 
         {/* Consent Card */}
@@ -124,36 +285,52 @@ function ConsentContent() {
 
           {/* What they want to read */}
           <div className="p-6 border-b border-white/[0.06]">
-            <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">Will read</p>
+            <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">
+              Will read
+            </p>
             <div className="space-y-2">
               {requestedCredentials.map((c) => (
-                <div key={c.slug} className="flex items-center justify-between py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.04]">
+                <div
+                  key={c.slug}
+                  className="flex items-center justify-between py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.04]"
+                >
                   <div>
                     <p className="text-sm font-semibold">{c.name}</p>
                     <p className="text-[11px] text-white/30">{c.issuer}</p>
                   </div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: TIER_COLORS[c.tier] }}>
+                  <span
+                    className="text-[10px] font-bold uppercase tracking-wider"
+                    style={{ color: TIER_COLORS[c.tier] }}
+                  >
                     {c.tier}
                   </span>
                 </div>
               ))}
               <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-emerald-500/[0.04] border border-emerald-500/[0.08]">
                 <div>
-                  <p className="text-sm font-semibold text-emerald-400">Glurk Score</p>
+                  <p className="text-sm font-semibold text-emerald-400">
+                    Glurk Score
+                  </p>
                   <p className="text-[11px] text-white/30">Reputation</p>
                 </div>
-                <span className="text-lg font-black text-emerald-400">{USER.glurkScore}</span>
+                <span className="text-lg font-black text-emerald-400">
+                  {USER.glurkScore}
+                </span>
               </div>
             </div>
           </div>
 
           {/* What they'll contribute */}
           <div className="p-6 border-b border-white/[0.06]">
-            <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">Will contribute to your profile</p>
+            <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">
+              Will contribute to your profile
+            </p>
             <div className="py-2 px-3 rounded-xl bg-blue-500/[0.04] border border-blue-500/[0.08]">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-blue-400">{contributionName}</p>
+                  <p className="text-sm font-semibold text-blue-400">
+                    {contributionName}
+                  </p>
                   <p className="text-[11px] text-white/30">From {appName}</p>
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400">
@@ -162,20 +339,25 @@ function ConsentContent() {
               </div>
             </div>
             <p className="text-[11px] text-white/20 mt-3 leading-relaxed">
-              This app must contribute data to access yours. Your identity gets richer with every connection.
+              This app must contribute data to access yours. Your identity gets
+              richer with every connection.
             </p>
           </div>
 
           {/* User identity */}
           <div className="p-6 border-b border-white/[0.06]">
-            <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-2">Signed in as</p>
+            <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-2">
+              Signed in as
+            </p>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xs font-bold text-emerald-400">
-                {USER.name[0]}
+              <div className="w-8 h-8 rounded-full bg-[#AB9FF2]/15 border border-[#AB9FF2]/25 flex items-center justify-center">
+                <PhantomIcon size={16} />
               </div>
               <div>
                 <p className="text-sm font-semibold">{USER.name}</p>
-                <p className="text-[11px] font-mono text-white/25">{USER.wallet.slice(0, 8)}...{USER.wallet.slice(-4)}</p>
+                <p className="text-[11px] font-mono text-white/25">
+                  {USER.wallet.slice(0, 8)}...{USER.wallet.slice(-4)}
+                </p>
               </div>
             </div>
           </div>
@@ -208,7 +390,13 @@ function ConsentContent() {
 
 export default function ConsentPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><p className="text-white/20">Loading...</p></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <p className="text-white/20">Loading...</p>
+        </div>
+      }
+    >
       <ConsentContent />
     </Suspense>
   );
