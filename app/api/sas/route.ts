@@ -231,8 +231,9 @@ async function handleSetup(connection: Connection, authority: Keypair) {
             schema: schemaAddress,
             name: schema.slug,
             description: schema.description,
+            // Empty layout + empty fieldNames: schema stores opaque JSON in attestation data
             layout: layoutBytes,
-            fieldNames: ['slug', 'tier', 'score', 'timestamp'],
+            fieldNames: [],
           } as any);
 
           const tx = new Transaction().add(sasToV1(ix, [authority.publicKey]));
@@ -246,7 +247,9 @@ async function handleSetup(connection: Connection, authority: Keypair) {
           results.push(`Schema ${schema.slug} already exists`);
         }
       } catch (e) {
-        results.push(`Schema ${schema.slug} error: ${(e as Error).message?.slice(0, 100)}`);
+        const errMsg = (e as Error).message ?? '';
+        console.error(`Schema ${schema.slug} full error:`, errMsg);
+        results.push(`Schema ${schema.slug} error: ${errMsg.slice(0, 300)}`);
       }
     }
 
@@ -298,15 +301,10 @@ async function handleAttest(
           continue;
         }
 
-        // Serialize attestation data as JSON bytes
-        const data = credentialData?.[schema.slug] ?? { tier: 'gold', score: 75 };
-        const dataBytes = Buffer.from(JSON.stringify({
-          slug: schema.slug,
-          tier: data.tier,
-          score: data.score,
-          wallet: user.toBase58(),
-          timestamp: Math.floor(Date.now() / 1000),
-        }));
+        // Empty data: schema has empty layout, so attestation data must also be empty.
+        // The attestation PDA's existence on-chain IS the credential proof.
+        // Credential details (tier, score) remain in our Anchor CredentialAccount.
+        const dataBytes = new Uint8Array(0);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const ix = getCreateAttestationInstruction({
@@ -317,7 +315,7 @@ async function handleAttest(
           attestation: attestationAddress,
           nonce: addr(user),
           data: dataBytes,
-          expiry: BigInt(-1), // no expiry
+          expiry: BigInt(0), // 0 = no expiry in SAS
         } as any);
 
         const tx = new Transaction().add(sasToV1(ix, [authority.publicKey]));
