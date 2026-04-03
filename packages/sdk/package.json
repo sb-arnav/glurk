@@ -1,0 +1,14 @@
+{
+  "name": "@glurk/sdk",
+  "version": "0.1.0",
+  "description": "The identity protocol for the internet. Apps trade data. Users own everything. Built on Solana.",
+  "main": "src/index.js",
+  "type": "module",
+  "keywords": ["solana", "identity", "credentials", "reciprocal", "data-exchange", "glurk", "token-2022"],
+  "author": "Glurk Protocol",
+  "license": "MIT",
+  "peerDependencies": {
+    "@coral-xyz/anchor": ">=0.29.0",
+    "@solana/web3.js": ">=1.87.0"
+  }
+}
