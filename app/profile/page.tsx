@@ -2,70 +2,23 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { PublicKey } from "@solana/web3.js";
 
-// Demo profile — in production these come from reading all CredentialAccount PDAs for a wallet
-const DEMO_PROFILE = {
-  wallet: "AQEWftBuELL2vUHdwj7yYN3gMsRHbzJJjRGgdPyAQ8vN",
-  name: "Arnav",
-  glurkScore: 680,
-  credentials: [
-    {
-      slug: "credit-score",
-      name: "Credit Score Basics",
-      tier: "gold",
-      score: 78,
-      issuer: "Staq",
-      issuerAddress: "BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT",
-      earnedAt: "2026-03-12",
-    },
-    {
-      slug: "stocks",
-      name: "Stock Market Basics",
-      tier: "gold",
-      score: 88,
-      issuer: "Staq",
-      issuerAddress: "BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT",
-      earnedAt: "2026-03-18",
-    },
-    {
-      slug: "upi",
-      name: "UPI Payments",
-      tier: "platinum",
-      score: 95,
-      issuer: "Staq",
-      issuerAddress: "BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT",
-      earnedAt: "2026-02-28",
-    },
-    {
-      slug: "sell-rules",
-      name: "Sell Rules",
-      tier: "gold",
-      score: 80,
-      issuer: "Staq",
-      issuerAddress: "BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT",
-      earnedAt: "2026-03-22",
-    },
-    {
-      slug: "trading-history",
-      name: "Trading History",
-      tier: "gold",
-      score: 85,
-      issuer: "StaqLend",
-      issuerAddress: "D3moApp1111111111111111111111111111111111111",
-      earnedAt: "2026-04-01",
-    },
-  ],
-  accessGrants: [
-    {
-      app: "StaqLend",
-      appIcon: "🏦",
-      grantedAt: "2026-04-01",
-      read: ["credit-score", "stocks", "upi", "sell-rules"],
-      contributed: "trading-history",
-      active: true,
-    },
-  ],
-};
+import type { Transaction } from "@solana/web3.js";
+
+declare global {
+  interface Window {
+    solana?: {
+      isPhantom?: boolean;
+      connect: (opts?: { onlyIfTrusted?: boolean }) => Promise<{ publicKey: PublicKey }>;
+      disconnect: () => Promise<void>;
+      signTransaction: (tx: Transaction) => Promise<Transaction>;
+      publicKey: PublicKey | null;
+    };
+  }
+}
+
+const EXPLORER_BASE = "https://explorer.solana.com";
 
 const TIER_COLORS: Record<string, string> = {
   platinum: "#E5E4E2",
@@ -81,6 +34,36 @@ const TIER_BG: Record<string, string> = {
   bronze: "bg-orange-900/[0.05] border-orange-800/[0.1]",
 };
 
+// Shorten an address/pubkey for display
+function shortenAddr(addr: string, pre = 8, suf = 6) {
+  if (addr.length <= pre + suf + 3) return addr;
+  return `${addr.slice(0, pre)}...${addr.slice(-suf)}`;
+}
+
+type Credential = {
+  pubkey: string;
+  issuer: string;
+  user: string;
+  slug: string;
+  tier: string;
+  score: number;
+  timestamp: number;
+};
+
+type Consent = {
+  pubkey: string;
+  user: string;
+  requester: string;
+  grantedAt: number;
+  active: boolean;
+};
+
+type ChainData = {
+  credentials: Credential[];
+  consents: Consent[];
+  glurkScore: number;
+};
+
 function ScoreArc({ score }: { score: number }) {
   const pct = score / 1000;
   const r = 54;
@@ -89,127 +72,218 @@ function ScoreArc({ score }: { score: number }) {
 
   return (
     <div className="relative w-36 h-36 mx-auto">
-      <svg
-        viewBox="0 0 128 128"
-        className="w-full h-full -rotate-[135deg]"
-        fill="none"
-      >
-        <circle
-          cx="64"
-          cy="64"
-          r={r}
-          stroke="white"
-          strokeOpacity="0.06"
-          strokeWidth="8"
-          strokeDasharray={`${circ * 0.75} ${circ * 0.25}`}
-          strokeLinecap="round"
-        />
-        <circle
-          cx="64"
-          cy="64"
-          r={r}
-          stroke="#10B981"
-          strokeWidth="8"
-          strokeDasharray={`${circ * 0.75} ${circ * 0.25}`}
-          strokeDashoffset={dashOffset}
-          strokeLinecap="round"
-          className="transition-all duration-700"
-        />
+      <svg viewBox="0 0 128 128" className="w-full h-full -rotate-[135deg]" fill="none">
+        <circle cx="64" cy="64" r={r} stroke="white" strokeOpacity="0.06" strokeWidth="8"
+          strokeDasharray={`${circ * 0.75} ${circ * 0.25}`} strokeLinecap="round" />
+        <circle cx="64" cy="64" r={r} stroke="#10B981" strokeWidth="8"
+          strokeDasharray={`${circ * 0.75} ${circ * 0.25}`} strokeDashoffset={dashOffset}
+          strokeLinecap="round" className="transition-all duration-700" />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <p className="text-3xl font-black text-emerald-400">{score}</p>
-        <p className="text-[10px] font-mono uppercase tracking-widest text-white/25 -mt-0.5">
-          Glurk
+        <p className="text-[10px] font-mono uppercase tracking-widest text-white/25 -mt-0.5">Glurk</p>
+      </div>
+    </div>
+  );
+}
+
+function CredentialRow({ cred }: { cred: Credential }) {
+  const date = new Date(cred.timestamp * 1000).toLocaleDateString("en-IN", {
+    year: "numeric", month: "short", day: "numeric",
+  });
+  return (
+    <div className={`flex items-center justify-between py-3 px-4 rounded-xl border ${TIER_BG[cred.tier] || TIER_BG.bronze}`}>
+      <div className="flex items-center gap-3">
+        <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: TIER_COLORS[cred.tier] || TIER_COLORS.bronze }} />
+        <div>
+          <p className="text-sm font-semibold">{cred.slug}</p>
+          <p className="text-[11px] text-white/25">
+            {shortenAddr(cred.issuer, 6, 4)} · {date}
+          </p>
+        </div>
+      </div>
+      <div className="text-right shrink-0">
+        <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: TIER_COLORS[cred.tier] || TIER_COLORS.bronze }}>
+          {cred.tier}
         </p>
+        <p className="text-xs text-white/30">{cred.score}/100</p>
+      </div>
+    </div>
+  );
+}
+
+function ConsentRow({ consent }: { consent: Consent }) {
+  const date = new Date(consent.grantedAt * 1000).toLocaleDateString("en-IN", {
+    year: "numeric", month: "short", day: "numeric",
+  });
+  return (
+    <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold font-mono">{shortenAddr(consent.requester)}</p>
+          <p className="text-[11px] text-white/25">Granted {date}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
+            consent.active
+              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+              : "bg-white/[0.04] text-white/25 border-white/[0.08]"
+          }`}>
+            {consent.active ? "active" : "revoked"}
+          </span>
+          <a
+            href={`${EXPLORER_BASE}/address/${consent.pubkey}?cluster=devnet`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] text-white/20 hover:text-white/50 transition-colors font-mono"
+          >
+            ↗
+          </a>
+        </div>
       </div>
     </div>
   );
 }
 
 export default function ProfilePage() {
-  const [walletConnected, setWalletConnected] = useState(false);
-  const [revoking, setRevoking] = useState<string | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [connecting, setConnecting] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [chainData, setChainData] = useState<ChainData | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const profile = DEMO_PROFILE;
+  async function connectWallet() {
+    if (!window.solana?.isPhantom) {
+      setError("Phantom wallet not found. Install it at phantom.app");
+      return;
+    }
+    setConnecting(true);
+    try {
+      const resp = await window.solana.connect();
+      const addr = resp.publicKey.toBase58();
+      setWalletAddress(addr);
+      await loadCredentials(addr);
+    } catch {
+      setError("Wallet connection cancelled.");
+    } finally {
+      setConnecting(false);
+    }
+  }
 
-  if (!walletConnected) {
+  async function loadCredentials(addr: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/credentials?wallet=${addr}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to fetch credentials");
+      setChainData(data);
+    } catch (e: unknown) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function disconnect() {
+    window.solana?.disconnect().catch(() => {});
+    setWalletAddress(null);
+    setChainData(null);
+    setError(null);
+  }
+
+  // ─── Not connected ───
+
+  if (!walletAddress) {
     return (
       <div className="min-h-screen flex flex-col">
-        {/* Nav */}
         <nav className="border-b border-white/[0.06] px-6 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-[10px] font-black text-emerald-400">
-                G
-              </div>
-              <span className="text-sm font-semibold text-white/50">
-                Glurk Protocol
-              </span>
+              <div className="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-[10px] font-black text-emerald-400">G</div>
+              <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
             </Link>
           </div>
         </nav>
-
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-sm text-center">
-            <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center mx-auto mb-6 text-2xl font-black text-white/20">
-              G
-            </div>
+            <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center mx-auto mb-6 text-2xl font-black text-white/20">G</div>
             <h1 className="text-2xl font-black mb-2">Your Identity</h1>
             <p className="text-white/35 text-sm leading-relaxed mb-8">
-              Connect your wallet to see all credentials across all apps,
-              your Glurk Score, and which apps have access to your data.
+              Connect your wallet to see your real on-chain credentials, Glurk Score, and which apps have access to your data.
             </p>
+            {error && (
+              <p className="text-xs text-red-400 bg-red-500/[0.08] border border-red-500/[0.15] rounded-lg px-3 py-2 mb-4">{error}</p>
+            )}
             <button
-              onClick={() => setWalletConnected(true)}
-              className="w-full py-4 rounded-2xl bg-white/[0.04] border border-white/[0.1] hover:bg-white/[0.07] transition-all flex items-center justify-center gap-3 group"
+              onClick={connectWallet}
+              disabled={connecting}
+              className="w-full py-4 rounded-2xl bg-[#AB9FF2]/10 border border-[#AB9FF2]/25 hover:bg-[#AB9FF2]/15 hover:border-[#AB9FF2]/40 transition-all flex items-center justify-center gap-3 disabled:opacity-60"
             >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-white/40"
-              >
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-                <line x1="12" y1="12" x2="12" y2="16" />
-                <line x1="10" y1="14" x2="14" y2="14" />
+              <svg width="20" height="20" viewBox="0 0 128 128" fill="none">
+                <rect width="128" height="128" rx="28" fill="#AB9FF2" />
+                <ellipse cx="64" cy="65" rx="42" ry="42" fill="white" />
+                <circle cx="53" cy="58" r="10" fill="#AB9FF2" />
+                <circle cx="75" cy="58" r="10" fill="#AB9FF2" />
+                <circle cx="50" cy="57" r="3.5" fill="white" />
+                <circle cx="72" cy="57" r="3.5" fill="white" />
               </svg>
               <span className="font-semibold text-[15px]">
-                Connect Wallet
+                {connecting ? "Connecting..." : "Connect Phantom"}
               </span>
             </button>
-            <p className="text-[11px] text-white/15 mt-4">
-              Demo mode — loads example profile for Arnav&apos;s wallet
-            </p>
+            <p className="text-[11px] text-white/15 mt-4">Reads from Solana devnet</p>
           </div>
         </div>
       </div>
     );
   }
 
+  // ─── Loading ───
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <nav className="border-b border-white/[0.06] px-6 py-4">
+          <div className="max-w-2xl mx-auto flex items-center justify-between">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-[10px] font-black text-emerald-400">G</div>
+              <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
+            </Link>
+          </div>
+        </nav>
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <svg className="animate-spin w-6 h-6 text-white/20 mx-auto mb-3" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="31.4" strokeDashoffset="10" strokeLinecap="round" />
+            </svg>
+            <p className="text-sm text-white/25">Reading from Solana devnet...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Connected + data ───
+
+  const creds = chainData?.credentials ?? [];
+  const consents = chainData?.consents ?? [];
+  const score = chainData?.glurkScore ?? 0;
+  const issuers = [...new Set(creds.map((c) => c.issuer))];
+
   return (
     <div className="min-h-screen">
-      {/* Nav */}
       <nav className="border-b border-white/[0.06] px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-[10px] font-black text-emerald-400">
-              G
-            </div>
-            <span className="text-sm font-semibold text-white/50">
-              Glurk Protocol
-            </span>
+            <div className="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-[10px] font-black text-emerald-400">G</div>
+            <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
           </Link>
           <button
-            onClick={() => setWalletConnected(false)}
+            onClick={disconnect}
             className="text-[11px] font-mono text-white/25 hover:text-white/50 transition-colors"
           >
-            {profile.wallet.slice(0, 6)}...{profile.wallet.slice(-4)} ✕
+            {shortenAddr(walletAddress, 6, 4)} ✕
           </button>
         </div>
       </nav>
@@ -218,21 +292,26 @@ export default function ProfilePage() {
         {/* Identity card */}
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6">
           <div className="flex items-center gap-6">
-            <ScoreArc score={profile.glurkScore} />
+            <ScoreArc score={score} />
             <div className="flex-1">
-              <p className="text-xl font-black">{profile.name}</p>
-              <p className="text-[11px] font-mono text-white/25 mt-0.5">
-                {profile.wallet.slice(0, 12)}...{profile.wallet.slice(-6)}
-              </p>
+              <p className="font-mono text-sm text-white/50">{shortenAddr(walletAddress)}</p>
+              <a
+                href={`${EXPLORER_BASE}/address/${walletAddress}?cluster=devnet`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[10px] text-white/20 hover:text-white/40 transition-colors font-mono"
+              >
+                View on explorer ↗
+              </a>
               <div className="flex flex-wrap gap-2 mt-3">
                 <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                  {profile.credentials.length} credentials
+                  {creds.length} credential{creds.length !== 1 ? "s" : ""}
                 </span>
                 <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-white/30">
-                  {new Set(profile.credentials.map((c) => c.issuer)).size} issuers
+                  {issuers.length} issuer{issuers.length !== 1 ? "s" : ""}
                 </span>
                 <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-white/30">
-                  {profile.accessGrants.filter((g) => g.active).length} active apps
+                  {consents.filter((c) => c.active).length} active app{consents.filter((c) => c.active).length !== 1 ? "s" : ""}
                 </span>
               </div>
             </div>
@@ -242,134 +321,67 @@ export default function ProfilePage() {
         {/* Credentials */}
         <div>
           <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">
-            Credentials
+            Credentials {creds.length > 0 && <span className="text-white/15">· live from devnet</span>}
           </p>
-          <div className="space-y-2">
-            {profile.credentials.map((c) => (
-              <div
-                key={`${c.issuer}-${c.slug}`}
-                className={`flex items-center justify-between py-3 px-4 rounded-xl border ${TIER_BG[c.tier]}`}
+          {creds.length === 0 ? (
+            <div className="py-10 text-center rounded-xl border border-white/[0.04] bg-white/[0.01]">
+              <p className="text-sm text-white/25">No credentials found for this wallet.</p>
+              <p className="text-[11px] text-white/15 mt-1">
+                Use Staq to earn your first credentials, then come back.
+              </p>
+              <a
+                href="https://staq.slayerblade.site"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block mt-3 text-[11px] text-emerald-400/60 hover:text-emerald-400 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ background: TIER_COLORS[c.tier] }}
-                  />
-                  <div>
-                    <p className="text-sm font-semibold">{c.name}</p>
-                    <p className="text-[11px] text-white/25">
-                      {c.issuer} · {c.earnedAt}
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <p
-                    className="text-[10px] font-bold uppercase tracking-wider"
-                    style={{ color: TIER_COLORS[c.tier] }}
-                  >
-                    {c.tier}
-                  </p>
-                  <p className="text-xs text-white/30">{c.score}/100</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Access grants */}
-        <div>
-          <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">
-            App access
-          </p>
-          {profile.accessGrants.length === 0 ? (
-            <div className="py-8 text-center rounded-xl border border-white/[0.04] bg-white/[0.01]">
-              <p className="text-sm text-white/25">No apps have accessed your data yet.</p>
+                staq.slayerblade.site ↗
+              </a>
             </div>
           ) : (
             <div className="space-y-2">
-              {profile.accessGrants.map((grant) => (
-                <div
-                  key={grant.app}
-                  className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{grant.appIcon}</span>
-                      <div>
-                        <p className="font-semibold text-sm">{grant.app}</p>
-                        <p className="text-[11px] text-white/25">
-                          Granted {grant.grantedAt}
-                        </p>
-                      </div>
-                    </div>
-                    {grant.active && (
-                      <button
-                        onClick={() => {
-                          setRevoking(grant.app);
-                          setTimeout(() => setRevoking(null), 1500);
-                        }}
-                        className={`text-[11px] font-mono px-3 py-1.5 rounded-lg border transition-all ${
-                          revoking === grant.app
-                            ? "border-red-500/30 text-red-400 bg-red-500/[0.08]"
-                            : "border-white/[0.08] text-white/30 hover:border-red-500/30 hover:text-red-400 hover:bg-red-500/[0.05]"
-                        }`}
-                      >
-                        {revoking === grant.app ? "Revoking..." : "Revoke"}
-                      </button>
-                    )}
-                  </div>
-                  <div className="space-y-1.5">
-                    <div className="flex items-start gap-2 text-xs">
-                      <span className="text-white/25 mt-0.5 shrink-0">Read</span>
-                      <div className="flex flex-wrap gap-1">
-                        {grant.read.map((slug) => (
-                          <span
-                            key={slug}
-                            className="font-mono px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] text-white/40"
-                          >
-                            {slug}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <span className="text-white/25 shrink-0">Contributed</span>
-                      <span className="font-mono px-1.5 py-0.5 rounded bg-blue-500/[0.06] border border-blue-500/[0.12] text-blue-400">
-                        {grant.contributed}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              {creds.map((c) => (
+                <CredentialRow key={c.pubkey} cred={c} />
               ))}
             </div>
           )}
         </div>
 
-        {/* Try demo CTA */}
-        <div className="rounded-2xl border border-emerald-500/[0.1] bg-emerald-500/[0.02] p-5">
-          <p className="font-bold mb-1">Add more credentials</p>
-          <p className="text-sm text-white/35 mb-4">
-            Use apps built on Glurk Protocol. Each app that reads your profile
-            must contribute data back — your identity grows automatically.
+        {/* Consents */}
+        {consents.length > 0 && (
+          <div>
+            <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">
+              App access {<span className="text-white/15">· live from devnet</span>}
+            </p>
+            <div className="space-y-2">
+              {consents.map((c) => (
+                <ConsentRow key={c.pubkey} consent={c} />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <p className="text-xs text-red-400 bg-red-500/[0.08] border border-red-500/[0.15] rounded-lg px-3 py-2">
+            {error}
           </p>
-          <Link
-            href="/demo/lend"
-            className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors"
-          >
-            Try StaqLend demo
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-          </Link>
+        )}
+
+        {/* CTA */}
+        <div className="rounded-2xl border border-emerald-500/[0.1] bg-emerald-500/[0.02] p-5">
+          <p className="font-bold mb-1">Try the protocol</p>
+          <p className="text-sm text-white/35 mb-4">
+            Go through the consent flow with a demo app. A real on-chain transaction will run — the app contributes data back to your profile.
+          </p>
+          <div className="flex gap-3">
+            <Link href="/demo/lend" className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors">
+              StaqLend 🏦 →
+            </Link>
+            <Link href="/demo/jobs" className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">
+              StaqJobs 💼 →
+            </Link>
+          </div>
         </div>
       </div>
     </div>
