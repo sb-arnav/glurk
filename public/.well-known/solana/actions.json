@@ -1,0 +1,6 @@
+{
+  "rules": [
+    { "pathPattern": "/api/actions/**", "apiPath": "/api/actions/**" },
+    { "pathPattern": "/consent", "apiPath": "/api/actions/consent" }
+  ]
+}
