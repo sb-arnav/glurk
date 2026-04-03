@@ -58,6 +58,12 @@ type Consent = {
   active: boolean;
 };
 
+type SasAttestation = {
+  slug: string;
+  attestationAddress: string;
+  exists: boolean;
+};
+
 type ChainData = {
   credentials: Credential[];
   consents: Consent[];
@@ -87,7 +93,7 @@ function ScoreArc({ score }: { score: number }) {
   );
 }
 
-function CredentialRow({ cred }: { cred: Credential }) {
+function CredentialRow({ cred, hasSas }: { cred: Credential; hasSas?: boolean }) {
   const date = new Date(cred.timestamp * 1000).toLocaleDateString("en-IN", {
     year: "numeric", month: "short", day: "numeric",
   });
@@ -102,11 +108,16 @@ function CredentialRow({ cred }: { cred: Credential }) {
           </p>
         </div>
       </div>
-      <div className="text-right shrink-0">
+      <div className="text-right shrink-0 flex flex-col items-end gap-1">
         <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: TIER_COLORS[cred.tier] || TIER_COLORS.bronze }}>
           {cred.tier}
         </p>
         <p className="text-xs text-white/30">{cred.score}/100</p>
+        {hasSas && (
+          <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-violet-500/10 border border-violet-500/20 text-violet-400">
+            SAS ✓
+          </span>
+        )}
       </div>
     </div>
   );
@@ -150,6 +161,7 @@ export default function ProfilePage() {
   const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(false);
   const [chainData, setChainData] = useState<ChainData | null>(null);
+  const [sasAttestations, setSasAttestations] = useState<SasAttestation[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   async function connectWallet() {
@@ -174,10 +186,17 @@ export default function ProfilePage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/credentials?wallet=${addr}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to fetch credentials");
+      const [credRes, sasRes] = await Promise.all([
+        fetch(`/api/credentials?wallet=${addr}`),
+        fetch(`/api/sas?wallet=${addr}`),
+      ]);
+      const data = await credRes.json();
+      if (!credRes.ok) throw new Error(data.error || "Failed to fetch credentials");
       setChainData(data);
+      if (sasRes.ok) {
+        const sasData = await sasRes.json();
+        setSasAttestations((sasData.attestations ?? []).filter((a: SasAttestation) => a.exists));
+      }
     } catch (e: unknown) {
       setError((e as Error).message);
     } finally {
@@ -189,6 +208,7 @@ export default function ProfilePage() {
     window.solana?.disconnect().catch(() => {});
     setWalletAddress(null);
     setChainData(null);
+    setSasAttestations([]);
     setError(null);
   }
 
@@ -270,6 +290,7 @@ export default function ProfilePage() {
   const consents = chainData?.consents ?? [];
   const score = chainData?.glurkScore ?? 0;
   const issuers = [...new Set(creds.map((c) => c.issuer))];
+  const sasSlugSet = new Set(sasAttestations.map((a) => a.slug));
 
   return (
     <div className="min-h-screen">
@@ -313,6 +334,11 @@ export default function ProfilePage() {
                 <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-white/30">
                   {consents.filter((c) => c.active).length} active app{consents.filter((c) => c.active).length !== 1 ? "s" : ""}
                 </span>
+                {sasAttestations.length > 0 && (
+                  <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-violet-500/10 border border-violet-500/20 text-violet-400">
+                    SAS attested
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -341,7 +367,7 @@ export default function ProfilePage() {
           ) : (
             <div className="space-y-2">
               {creds.map((c) => (
-                <CredentialRow key={c.pubkey} cred={c} />
+                <CredentialRow key={c.pubkey} cred={c} hasSas={sasSlugSet.has(c.slug)} />
               ))}
             </div>
           )}
