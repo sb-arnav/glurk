@@ -55,8 +55,8 @@ export async function GET() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const wallet: any = {
       publicKey: authority.publicKey,
-      signTransaction: async (tx: any) => { tx.sign([authority]); return tx; },
-      signAllTransactions: async (txs: any[]) => { txs.forEach((tx: any) => tx.sign([authority])); return txs; },
+      signTransaction: async (tx: any) => { tx.sign(authority); return tx; },
+      signAllTransactions: async (txs: any[]) => { txs.forEach((tx: any) => tx.sign(authority)); return txs; },
     };
     const provider = new anchor.AnchorProvider(connection, wallet, { commitment: 'confirmed' });
     const program = new anchor.Program(idl, provider);

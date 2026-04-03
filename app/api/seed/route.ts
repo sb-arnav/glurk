@@ -188,6 +188,20 @@ export async function POST(req: NextRequest) {
       PROGRAM_ID,
     );
 
+    // Ensure issuer is registered
+    const issuerInfo = await connection.getAccountInfo(issuerPda);
+    if (!issuerInfo) {
+      await (program.methods as any)
+        .registerIssuer('Staq Financial Literacy')
+        .accounts({
+          admin: authority.publicKey,
+          issuerAuthority: authority.publicKey,
+          issuerAccount: issuerPda,
+          systemProgram: SystemProgram.programId,
+        })
+        .rpc();
+    }
+
     for (const cred of STAQ_CREDENTIALS) {
       const [credentialPda] = PublicKey.findProgramAddressSync(
         [Buffer.from('credential'), authority.publicKey.toBuffer(), userPubkey.toBuffer(), Buffer.from(cred.slug)],

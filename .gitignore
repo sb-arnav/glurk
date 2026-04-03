@@ -45,3 +45,4 @@ next-env.d.ts
 **/*.so
 !target/deploy/glurk_protocol.so
 !target/idl/glurk_protocol.json
+.env.local
