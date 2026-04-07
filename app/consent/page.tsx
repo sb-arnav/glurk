@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { Connection, Transaction, PublicKey } from "@solana/web3.js";
@@ -296,8 +297,8 @@ function ConsentContent() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="w-full max-w-[380px]">
           <div className="text-center mb-8">
-            <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-sm font-black text-white/30">
-              G
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Image src="/glurk.png" alt="Glurk" width={48} height={48} />
             </div>
             <p className="text-xs text-white/30 font-mono tracking-widest uppercase">
               Glurk Protocol
