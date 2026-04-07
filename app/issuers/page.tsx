@@ -100,8 +100,8 @@ export default function IssuersPage() {
               {
                 step: "03",
                 title: "Read with the SDK",
-                body: "Use @glurk/sdk to read any user's profile in your app, including credentials from all issuers.",
-                code: `import { getProfile, KNOWN_ISSUERS } from '@glurk/sdk';\n\nconst { credentials, glurkScore } =\n  await getProfile(connection, userWallet);`,
+                body: "Use @glurk-protocol/sdk to read any user's profile in your app, including credentials from all issuers.",
+                code: `import { getProfile, KNOWN_ISSUERS } from '@glurk-protocol/sdk';\n\nconst { credentials, glurkScore } =\n  await getProfile(connection, userWallet);`,
               },
             ].map(({ step, title, body, code }) => (
               <div
