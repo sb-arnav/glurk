@@ -451,71 +451,65 @@ export default function Home() {
           Developer integration
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-[0_16px_36px_rgba(6,5,18,0.2)]">
+          <div className="rounded-2xl border border-white/[0.06] bg-[#0D0A1F] p-6 shadow-[0_16px_36px_rgba(6,5,18,0.2)]">
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-4">
-              Read a credential
+              Read a user&apos;s identity
             </p>
-            <div className="font-mono text-sm space-y-1">
-              <p className="text-white/40">
-                <span className="text-white/25">{"// "}</span>fetch any credential PDA directly
-              </p>
-              <p className="mt-2">
-                <span className="text-blue-400">const</span> [pda] = PublicKey.
-              </p>
-              <p className="pl-4">
-                <span className="text-[#7B6FF8]">findProgramAddressSync</span>(
-              </p>
-              <p className="pl-8 text-white/40">
-                [<span className="text-yellow-400/80">&quot;credential&quot;</span>, issuer, user, slug],
-              </p>
-              <p className="pl-8 text-white/40">GLURK_PROGRAM_ID</p>
-              <p className="pl-4 text-white/40">);</p>
-              <p className="mt-2 text-white/40">
-                <span className="text-blue-400">const</span> acct = <span className="text-blue-400">await</span> connection.
-              </p>
-              <p className="pl-4 text-[#7B6FF8]">getAccountInfo(pda);</p>
-              <p className="mt-1 text-white/25">
-                {"// "}{" "}{"{ tier: 'gold', score: 78 }"}
-              </p>
+            <div className="font-mono text-sm space-y-0.5 leading-relaxed">
+              <p><span className="text-blue-400">import</span> <span className="text-white/50">{"{"}</span> <span className="text-[#A79EFF]">getProfile</span> <span className="text-white/50">{"}"}</span> <span className="text-blue-400">from</span> <span className="text-yellow-400/80">&apos;@glurk/sdk&apos;</span>;</p>
+              <p className="mt-3 text-white/50"><span className="text-white/25">{"// "}</span>works in any Solana app</p>
+              <p><span className="text-blue-400">const</span> <span className="text-white/70">profile</span> = <span className="text-blue-400">await</span> <span className="text-[#7B6FF8]">getProfile</span>(</p>
+              <p className="pl-6 text-white/50">connection,</p>
+              <p className="pl-6 text-white/50">userWallet,</p>
+              <p className="text-white/50">);</p>
+              <p className="mt-3 text-white/50"><span className="text-white/25">{"// "}</span>profile.credentials → all verified skills</p>
+              <p className="text-white/50"><span className="text-white/25">{"// "}</span>profile.glurkScore → <span className="text-[#A79EFF]">0–1000</span> reputation</p>
+              <p className="text-white/50"><span className="text-white/25">{"// "}</span>profile.consents → apps with access</p>
             </div>
           </div>
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-[0_16px_36px_rgba(6,5,18,0.2)]">
+          <div className="rounded-2xl border border-white/[0.06] bg-[#0D0A1F] p-6 shadow-[0_16px_36px_rgba(6,5,18,0.2)]">
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-4">
-              Request access + contribute
+              Verify a specific credential
             </p>
-            <div className="font-mono text-sm space-y-1">
-              <p className="text-white/40">
-                <span className="text-white/25">{"// "}</span>one instruction, atomic on-chain
-              </p>
-              <p className="mt-2">
-                <span className="text-blue-400">await</span> program.methods
-              </p>
-              <p className="pl-4">
-                .<span className="text-[#7B6FF8]">requestAccess</span>(
-              </p>
-              <p className="pl-8 text-yellow-400/80">&quot;trading-history&quot;</p>
-              <p className="pl-8 text-yellow-400/80">&quot;gold&quot;,</p>
-              <p className="pl-8 text-white/40">85</p>
-              <p className="pl-4 text-white/40">)</p>
-              <p className="pl-4 text-white/40">.accounts({"{"} user, requester {"}"} )</p>
-              <p className="pl-4 text-white/40">.rpc();</p>
-              <p className="mt-1 text-white/25">{"// "} contribution written + consent PDA created</p>
+            <div className="font-mono text-sm space-y-0.5 leading-relaxed">
+              <p><span className="text-blue-400">import</span> <span className="text-white/50">{"{"}</span> <span className="text-[#A79EFF]">verifyCredential</span><span className="text-white/50">,</span></p>
+              <p className="pl-6"><span className="text-[#A79EFF]">KNOWN_ISSUERS</span> <span className="text-white/50">{"}"}</span> <span className="text-blue-400">from</span> <span className="text-yellow-400/80">&apos;@glurk/sdk&apos;</span>;</p>
+              <p className="mt-3"><span className="text-blue-400">const</span> <span className="text-white/70">cred</span> = <span className="text-blue-400">await</span> <span className="text-[#7B6FF8]">verifyCredential</span>(</p>
+              <p className="pl-6 text-white/50">connection,</p>
+              <p className="pl-6"><span className="text-[#A79EFF]">KNOWN_ISSUERS</span>.STAQ,</p>
+              <p className="pl-6 text-white/50">userWallet,</p>
+              <p className="pl-6 text-yellow-400/80">&apos;credit-score&apos;,</p>
+              <p className="text-white/50">);</p>
+              <p className="mt-3 text-white/50"><span className="text-white/25">{"// "}</span>cred?.tier <span className="text-yellow-400/60">→ &apos;gold&apos;</span></p>
+              <p className="text-white/50"><span className="text-white/25">{"// "}</span>cred?.score <span className="text-yellow-400/60">→ 78</span></p>
             </div>
           </div>
         </div>
-        <div className="mt-4 rounded-2xl border border-[#5B4FE8]/[0.1] bg-[#5B4FE8]/[0.02] p-5 flex items-center justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold mb-0.5">Integrate with Glurk</p>
-            <p className="text-xs text-white/35">IDL, program ID, and consent flow reference in the repo.</p>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-[#5B4FE8]/[0.1] bg-[#5B4FE8]/[0.02] p-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold mb-0.5">npm install @glurk/sdk</p>
+              <p className="text-xs text-white/35">TypeScript-first. Zero Anchor dependency for reads.</p>
+            </div>
+            <a
+              href="https://github.com/sb-arnav/glurk/tree/main/packages/sdk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 px-4 py-2 rounded-xl bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 text-[#7B6FF8] text-sm font-semibold hover:bg-[#5B4FE8]/25 transition-colors"
+            >
+              SDK docs ↗
+            </a>
           </div>
-          <a
-            href="https://github.com/sb-arnav/glurk"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 px-4 py-2 rounded-xl bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 text-[#7B6FF8] text-sm font-semibold hover:bg-[#5B4FE8]/25 transition-colors"
+          <Link
+            href="/issuers"
+            className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5 flex items-center justify-between gap-4 hover:border-white/[0.12] transition-colors"
           >
-            View on GitHub ↗
-          </a>
+            <div>
+              <p className="text-sm font-semibold mb-0.5">Become an issuer</p>
+              <p className="text-xs text-white/35">Issue credentials to your users through the protocol.</p>
+            </div>
+            <span className="shrink-0 text-white/30 text-sm">→</span>
+          </Link>
         </div>
       </section>
 
