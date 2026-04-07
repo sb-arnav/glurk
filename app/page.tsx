@@ -290,53 +290,69 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-[0_16px_36px_rgba(6,5,18,0.2)]">
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-4">
-              Install
+              Read a credential
             </p>
-            <div className="font-mono text-sm">
+            <div className="font-mono text-sm space-y-1">
               <p className="text-white/40">
-                npm install{" "}
-                <span className="text-[#7B6FF8]">@glurk/sdk</span>
+                <span className="text-white/25">{"// "}</span>fetch any credential PDA directly
               </p>
-              <p className="text-white/40 mt-1">
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                @coral-xyz/anchor @solana/web3.js
+              <p className="mt-2">
+                <span className="text-blue-400">const</span> [pda] = PublicKey.
+              </p>
+              <p className="pl-4">
+                <span className="text-[#7B6FF8]">findProgramAddressSync</span>(
+              </p>
+              <p className="pl-8 text-white/40">
+                [<span className="text-yellow-400/80">&quot;credential&quot;</span>, issuer, user, slug],
+              </p>
+              <p className="pl-8 text-white/40">GLURK_PROGRAM_ID</p>
+              <p className="pl-4 text-white/40">);</p>
+              <p className="mt-2 text-white/40">
+                <span className="text-blue-400">const</span> acct = <span className="text-blue-400">await</span> connection.
+              </p>
+              <p className="pl-4 text-[#7B6FF8]">getAccountInfo(pda);</p>
+              <p className="mt-1 text-white/25">
+                {"// "}{" "}{"{ tier: 'gold', score: 78 }"}
               </p>
             </div>
           </div>
           <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-[0_16px_36px_rgba(6,5,18,0.2)]">
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-4">
-              Verify a credential
+              Request access + contribute
             </p>
             <div className="font-mono text-sm space-y-1">
-              <p>
-                <span className="text-blue-400">import</span>{" "}
-                {"{ Glurk }"}{" "}
-                <span className="text-blue-400">from</span>{" "}
-                <span className="text-yellow-400/80">&apos;@glurk/sdk&apos;</span>;
+              <p className="text-white/40">
+                <span className="text-white/25">{"// "}</span>one instruction, atomic on-chain
               </p>
               <p className="mt-2">
-                <span className="text-blue-400">const</span> glurk ={" "}
-                <span className="text-blue-400">new</span>{" "}
-                <span className="text-[#7B6FF8]">Glurk</span>(connection);
+                <span className="text-blue-400">await</span> program.methods
               </p>
-              <p className="mt-2 text-white/40">
-                <span className="text-white/60">const</span> cred ={" "}
-                <span className="text-blue-400">await</span> glurk.
-                <span className="text-[#7B6FF8]">verify</span>(
+              <p className="pl-4">
+                .<span className="text-[#7B6FF8]">requestAccess</span>(
               </p>
-              <p className="pl-4 text-white/40">
-                STAQ_ISSUER, wallet,{" "}
-                <span className="text-yellow-400/80">&quot;credit-score&quot;</span>
-              </p>
-              <p className="text-white/40">);</p>
-              <p className="mt-1 text-white/40">
-                {"// "}{" "}
-                <span className="text-white/25">
-                  {"{ tier: 'gold', score: 78 }"}
-                </span>
-              </p>
+              <p className="pl-8 text-yellow-400/80">&quot;trading-history&quot;</p>
+              <p className="pl-8 text-yellow-400/80">&quot;gold&quot;,</p>
+              <p className="pl-8 text-white/40">85</p>
+              <p className="pl-4 text-white/40">)</p>
+              <p className="pl-4 text-white/40">.accounts({"{"} user, requester {"}"} )</p>
+              <p className="pl-4 text-white/40">.rpc();</p>
+              <p className="mt-1 text-white/25">{"// "} contribution written + consent PDA created</p>
             </div>
           </div>
+        </div>
+        <div className="mt-4 rounded-2xl border border-[#5B4FE8]/[0.1] bg-[#5B4FE8]/[0.02] p-5 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold mb-0.5">Integrate with Glurk</p>
+            <p className="text-xs text-white/35">IDL, program ID, and consent flow reference in the repo.</p>
+          </div>
+          <a
+            href="https://github.com/sb-arnav/glurk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 px-4 py-2 rounded-xl bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 text-[#7B6FF8] text-sm font-semibold hover:bg-[#5B4FE8]/25 transition-colors"
+          >
+            View on GitHub ↗
+          </a>
         </div>
       </section>
 
@@ -425,7 +441,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-6 text-[11px] text-white/20">
             <a
-              href="https://github.com/sb-arnav/staq-protocol"
+              href="https://github.com/sb-arnav/glurk"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-white/40 transition-colors"
