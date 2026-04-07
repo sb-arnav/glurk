@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signIn, useSession } from "next-auth/react";
@@ -159,7 +159,7 @@ function ConsentRow({ consent }: { consent: Consent }) {
 }
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -167,6 +167,27 @@ export default function ProfilePage() {
   const [sasAttestations, setSasAttestations] = useState<SasAttestation[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [linkStatus, setLinkStatus] = useState<"idle" | "linking" | "linked" | "error">("idle");
+  const [googleLinked, setGoogleLinked] = useState(false);
+
+  // If Google session exists and wallet is linked, auto-load credentials
+  useEffect(() => {
+    if (sessionStatus !== "authenticated" || walletAddress) return;
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.authenticated && data.wallet) {
+          setWalletAddress(data.wallet);
+          setChainData({
+            credentials: data.credentials ?? [],
+            consents: data.consents ?? [],
+            glurkScore: data.glurkScore ?? 0,
+          });
+          setGoogleLinked(true);
+          setLinkStatus("linked");
+        }
+      })
+      .catch(() => {});
+  }, [sessionStatus, walletAddress]);
 
   async function connectWallet() {
     if (!window.solana?.isPhantom) {
@@ -187,7 +208,7 @@ export default function ProfilePage() {
     }
   }
 
-  async function loadCredentials(addr: string) {
+  const loadCredentials = useCallback(async function loadCredentials(addr: string) {
     setLoading(true);
     setError(null);
     try {
@@ -207,7 +228,7 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   async function linkWalletToEmail(addr: string) {
     if (!session?.user?.email) return;
@@ -288,7 +309,11 @@ export default function ProfilePage() {
             {session ? (
               <div className="text-center">
                 <p className="text-xs text-white/40 mb-1">Signed in as <span className="text-[#7B6FF8]">{session.user?.email}</span></p>
-                <p className="text-[11px] text-white/20">Connect your wallet above to link it to your email.</p>
+                <p className="text-[11px] text-white/20">
+                  {sessionStatus === "loading"
+                    ? "Checking linked wallet..."
+                    : "Connect your wallet above to link it to your email."}
+                </p>
               </div>
             ) : (
               <button
@@ -350,7 +375,7 @@ export default function ProfilePage() {
       <nav className="border-b border-white/[0.06] px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 flex items-center justify-center text-[10px] font-black text-[#7B6FF8]">G</div>
+            <Image src="/glurk.png" alt="Glurk" width={24} height={24} />
             <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
           </Link>
           <button
@@ -369,9 +394,16 @@ export default function ProfilePage() {
             <span className="rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-[#A79EFF]">
               Live Identity
             </span>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-white/20">
-              Solana Devnet
-            </span>
+            <div className="flex items-center gap-2">
+              {googleLinked && (
+                <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-white/30">
+                  via Google
+                </span>
+              )}
+              <span className="text-[10px] font-mono uppercase tracking-wider text-white/20">
+                Solana Devnet
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-6">
             <ScoreArc score={score} />
