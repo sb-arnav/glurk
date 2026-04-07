@@ -8,7 +8,7 @@ const mono = JetBrains_Mono({ variable: "--font-mono", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Glurk Protocol",
   description: "The identity protocol for the internet. Apps trade data. Users own everything.",
-  icons: { icon: "/logo.png" },
+  icons: { icon: "/glurk.png" },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
