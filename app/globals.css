@@ -5,7 +5,22 @@
   --font-mono: var(--font-mono);
 }
 
+html {
+  background:
+    radial-gradient(circle at top, rgba(91, 79, 232, 0.22), transparent 32%),
+    radial-gradient(circle at 85% 18%, rgba(54, 126, 255, 0.14), transparent 26%),
+    linear-gradient(180deg, #120d29 0%, #0a0818 46%, #080611 100%);
+}
+
 body {
-  background: #0A0818;
+  background:
+    radial-gradient(circle at top, rgba(91, 79, 232, 0.22), transparent 32%),
+    radial-gradient(circle at 85% 18%, rgba(54, 126, 255, 0.14), transparent 26%),
+    linear-gradient(180deg, #120d29 0%, #0a0818 46%, #080611 100%);
   color: white;
+  min-height: 100vh;
+}
+
+body::selection {
+  background: rgba(123, 111, 248, 0.35);
 }

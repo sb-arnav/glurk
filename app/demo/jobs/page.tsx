@@ -125,7 +125,6 @@ function SeedPanel({ wallet, onDone }: { wallet: string; onDone: () => void }) {
 
 function JobsContent() {
   const searchParams = useSearchParams();
-  const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<{
     score: number;
@@ -134,6 +133,8 @@ function JobsContent() {
   } | null>(null);
   const [applying, setApplying] = useState<string | null>(null);
   const [applied, setApplied] = useState<string | null>(null);
+  const approved = searchParams.get("approved") === "true";
+  const callbackWallet = approved ? searchParams.get("wallet") : null;
 
   const loadCredentials = useCallback((wallet: string) => {
     setLoading(true);
@@ -156,12 +157,11 @@ function JobsContent() {
   }, []);
 
   useEffect(() => {
-    const approved = searchParams.get("approved");
-    const wallet = searchParams.get("wallet");
-    if (approved !== "true" || !wallet) return;
-    setConnected(true);
-    loadCredentials(wallet);
-  }, [searchParams, loadCredentials]);
+    if (!callbackWallet) return;
+    queueMicrotask(() => {
+      loadCredentials(callbackWallet);
+    });
+  }, [callbackWallet, loadCredentials]);
 
   const handleSignIn = () => {
     const params = new URLSearchParams({
@@ -220,7 +220,7 @@ function JobsContent() {
       </header>
 
       <div className="max-w-lg mx-auto px-6 py-8">
-        {!connected ? (
+        {!callbackWallet ? (
           <div>
             <h1 className="text-3xl font-black tracking-tight mb-3">
               Get hired with{" "}
@@ -320,7 +320,7 @@ function JobsContent() {
                 <p className="font-mono text-sm text-white/60">{userData?.wallet.slice(0, 8)}...{userData?.wallet.slice(-4)}</p>
               </div>
               <div className="ml-auto text-right">
-                <p className="text-2xl font-black text-emerald-400">
+                <p className="text-2xl font-black text-[#7B6FF8]">
                   {userData?.score}
                 </p>
                 <p className="text-[10px] text-white/25 font-mono">
@@ -353,7 +353,7 @@ function JobsContent() {
                   key={job.id}
                   className={`rounded-xl border p-4 transition-all ${
                     job.eligible
-                      ? "border-emerald-500/[0.15] bg-emerald-500/[0.02]"
+                      ? "border-[#5B4FE8]/[0.15] bg-[#5B4FE8]/[0.02]"
                       : "border-white/[0.06] bg-white/[0.01] opacity-60"
                   }`}
                 >
@@ -361,7 +361,7 @@ function JobsContent() {
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-0.5">
                         {job.eligible && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#5B4FE8] inline-block" />
                         )}
                         <p className="font-semibold text-sm">{job.title}</p>
                       </div>
@@ -382,7 +382,7 @@ function JobsContent() {
                     <div className="shrink-0">
                       {job.eligible ? (
                         applied === job.id ? (
-                          <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-semibold">
+                          <div className="flex items-center gap-1.5 text-[#7B6FF8] text-xs font-semibold">
                             <svg
                               width="14"
                               height="14"
@@ -401,7 +401,7 @@ function JobsContent() {
                           <button
                             onClick={() => handleApply(job.id)}
                             disabled={applying === job.id}
-                            className="px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold hover:bg-emerald-400 transition-colors disabled:opacity-60"
+                            className="px-3 py-1.5 rounded-lg bg-[#5B4FE8] text-white text-xs font-bold hover:bg-[#6B5FF8] transition-colors disabled:opacity-60"
                           >
                             {applying === job.id ? "Applying..." : "Apply"}
                           </button>
@@ -425,7 +425,7 @@ function JobsContent() {
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className="text-emerald-400/60"
+                        className="text-[#7B6FF8]/60"
                       >
                         <path d="M5 12l5 5L20 7" />
                       </svg>
@@ -460,7 +460,7 @@ function JobsContent() {
               </p>
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 py-1.5 px-3 rounded-lg bg-white/[0.02] border border-white/[0.04] text-xs">
-                  <span className="text-emerald-400">←</span>
+                  <span className="text-[#7B6FF8]">←</span>
                   <span className="text-white/40">
                     <span className="text-white/60 font-semibold">Read:</span>{" "}
                     {userData?.credentials.length} skills + Glurk Score

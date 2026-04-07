@@ -81,12 +81,12 @@ function ScoreArc({ score }: { score: number }) {
       <svg viewBox="0 0 128 128" className="w-full h-full -rotate-[135deg]" fill="none">
         <circle cx="64" cy="64" r={r} stroke="white" strokeOpacity="0.06" strokeWidth="8"
           strokeDasharray={`${circ * 0.75} ${circ * 0.25}`} strokeLinecap="round" />
-        <circle cx="64" cy="64" r={r} stroke="#10B981" strokeWidth="8"
+        <circle cx="64" cy="64" r={r} stroke="#5B4FE8" strokeWidth="8"
           strokeDasharray={`${circ * 0.75} ${circ * 0.25}`} strokeDashoffset={dashOffset}
           strokeLinecap="round" className="transition-all duration-700" />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <p className="text-3xl font-black text-emerald-400">{score}</p>
+        <p className="text-3xl font-black text-[#7B6FF8]">{score}</p>
         <p className="text-[10px] font-mono uppercase tracking-widest text-white/25 -mt-0.5">Glurk</p>
       </div>
     </div>
@@ -137,7 +137,7 @@ function ConsentRow({ consent }: { consent: Consent }) {
         <div className="flex items-center gap-2">
           <span className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
             consent.active
-              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+              ? "bg-[#5B4FE8]/10 text-[#7B6FF8] border-[#5B4FE8]/20"
               : "bg-white/[0.04] text-white/25 border-white/[0.08]"
           }`}>
             {consent.active ? "active" : "revoked"}
@@ -220,7 +220,7 @@ export default function ProfilePage() {
         <nav className="border-b border-white/[0.06] px-6 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-[10px] font-black text-emerald-400">G</div>
+              <div className="w-6 h-6 rounded-md bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 flex items-center justify-center text-[10px] font-black text-[#7B6FF8]">G</div>
               <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
             </Link>
           </div>
@@ -267,7 +267,7 @@ export default function ProfilePage() {
         <nav className="border-b border-white/[0.06] px-6 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-[10px] font-black text-emerald-400">G</div>
+              <div className="w-6 h-6 rounded-md bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 flex items-center justify-center text-[10px] font-black text-[#7B6FF8]">G</div>
               <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
             </Link>
           </div>
@@ -297,7 +297,7 @@ export default function ProfilePage() {
       <nav className="border-b border-white/[0.06] px-6 py-4">
         <div className="max-w-2xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-[10px] font-black text-emerald-400">G</div>
+            <div className="w-6 h-6 rounded-md bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 flex items-center justify-center text-[10px] font-black text-[#7B6FF8]">G</div>
             <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
           </Link>
           <button
@@ -325,7 +325,7 @@ export default function ProfilePage() {
                 View on explorer ↗
               </a>
               <div className="flex flex-wrap gap-2 mt-3">
-                <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 text-[#7B6FF8]">
                   {creds.length} credential{creds.length !== 1 ? "s" : ""}
                 </span>
                 <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-white/30">
@@ -355,14 +355,14 @@ export default function ProfilePage() {
               <p className="text-[11px] text-white/15 mt-1">
                 Use Staq to earn your first credentials, then come back.
               </p>
-              <a
-                href="https://staq.slayerblade.site"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-block mt-3 text-[11px] text-emerald-400/60 hover:text-emerald-400 transition-colors"
-              >
-                staq.slayerblade.site ↗
-              </a>
+                <a
+                  href="https://staq.slayerblade.site"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block mt-3 text-[11px] text-[#7B6FF8]/60 hover:text-[#7B6FF8] transition-colors"
+                >
+                  staq.slayerblade.site ↗
+                </a>
             </div>
           ) : (
             <div className="space-y-2">
@@ -395,13 +395,13 @@ export default function ProfilePage() {
         )}
 
         {/* CTA */}
-        <div className="rounded-2xl border border-emerald-500/[0.1] bg-emerald-500/[0.02] p-5">
+        <div className="rounded-2xl border border-[#5B4FE8]/[0.1] bg-[#5B4FE8]/[0.02] p-5">
           <p className="font-bold mb-1">Try the protocol</p>
           <p className="text-sm text-white/35 mb-4">
             Go through the consent flow with a demo app. A real on-chain transaction will run — the app contributes data back to your profile.
           </p>
           <div className="flex gap-3">
-            <Link href="/demo/lend" className="text-sm font-semibold text-emerald-400 hover:text-emerald-300 transition-colors">
+            <Link href="/demo/lend" className="text-sm font-semibold text-[#7B6FF8] hover:text-[#8C82FF] transition-colors">
               StaqLend 🏦 →
             </Link>
             <Link href="/demo/jobs" className="text-sm font-semibold text-blue-400 hover:text-blue-300 transition-colors">

@@ -6,9 +6,14 @@ const EXPLORER_URL = `https://explorer.solana.com/address/${PROGRAM_ID}?cluster=
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#0A0818] text-white">
+    <div className="relative min-h-screen overflow-hidden text-white">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-[-10rem] top-24 h-72 w-72 rounded-full bg-[#5B4FE8]/18 blur-3xl" />
+        <div className="absolute right-[-6rem] top-40 h-64 w-64 rounded-full bg-blue-500/10 blur-3xl" />
+        <div className="absolute bottom-10 left-1/3 h-48 w-48 rounded-full bg-[#7B6FF8]/10 blur-3xl" />
+      </div>
       {/* Nav */}
-      <nav className="border-b border-white/[0.06] px-6 py-4">
+      <nav className="relative border-b border-white/[0.06] bg-[#0B0916]/55 px-6 py-4 backdrop-blur-xl">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image src="/glurk.png" alt="Glurk" width={28} height={28} />
@@ -25,7 +30,7 @@ export default function Home() {
             </a>
             <Link
               href="/demo/lend"
-              className="px-4 py-2 rounded-xl bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400 transition-colors"
+              className="px-4 py-2 rounded-xl bg-[#5B4FE8] text-white text-sm font-bold hover:bg-[#6B5FF8] transition-colors"
             >
               Try Demo
             </Link>
@@ -34,41 +39,97 @@ export default function Home() {
       </nav>
 
       {/* Hero */}
-      <section className="max-w-5xl mx-auto px-6 pt-24 pb-20">
-        <div className="max-w-3xl">
-          <p className="text-[11px] font-mono tracking-widest uppercase text-emerald-400/70 mb-6">
-            Infrastructure · Solana Devnet
-          </p>
-          <h1 className="text-5xl font-black tracking-tight leading-[1.1] mb-6">
-            Apps trade data.
-            <br />
-            <span className="text-emerald-400">Users own everything.</span>
-          </h1>
-          <p className="text-lg text-white/45 leading-relaxed max-w-xl mb-10">
-            Glurk is an open credential protocol on Solana where data flows both
-            ways. Every app that reads a user's identity must contribute
-            something back — enforced at the program level, not by terms of
-            service.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/demo/lend"
-              className="px-5 py-3 rounded-xl bg-emerald-500 text-black font-bold hover:bg-emerald-400 transition-colors text-sm"
-            >
-              StaqLend Demo 🏦
-            </Link>
-            <Link
-              href="/demo/jobs"
-              className="px-5 py-3 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-300 font-bold hover:bg-blue-500/25 transition-colors text-sm"
-            >
-              StaqJobs Demo 💼
-            </Link>
-            <Link
-              href="/profile"
-              className="px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/60 font-semibold hover:bg-white/[0.06] transition-colors text-sm"
-            >
-              Your Profile
-            </Link>
+      <section className="relative max-w-5xl mx-auto px-6 pt-24 pb-20">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
+          <div className="max-w-3xl">
+            <p className="inline-flex items-center gap-2 rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-3 py-1 text-[11px] font-mono tracking-widest uppercase text-[#A79EFF] mb-6">
+              <span className="h-2 w-2 rounded-full bg-[#7B6FF8]" />
+              Infrastructure · Solana Devnet
+            </p>
+            <h1 className="text-5xl font-black tracking-tight leading-[1.02] mb-6 sm:text-6xl">
+              Apps trade data.
+              <br />
+              <span className="text-[#7B6FF8]">Users own everything.</span>
+            </h1>
+            <p className="text-lg text-white/50 leading-relaxed max-w-2xl mb-10">
+              Glurk is an open credential protocol on Solana where data flows both
+              ways. Every app that reads a user&apos;s identity must contribute
+              something back, enforced at the program level, not by terms of
+              service.
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                href="/demo/lend"
+                className="px-5 py-3 rounded-xl bg-[#5B4FE8] text-white font-bold hover:bg-[#6B5FF8] shadow-[0_16px_40px_rgba(91,79,232,0.28)] transition-colors text-sm"
+              >
+                StaqLend Demo 🏦
+              </Link>
+              <Link
+                href="/demo/jobs"
+                className="px-5 py-3 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-300 font-bold hover:bg-blue-500/25 transition-colors text-sm"
+              >
+                StaqJobs Demo 💼
+              </Link>
+              <Link
+                href="/profile"
+                className="px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/70 font-semibold hover:bg-white/[0.06] transition-colors text-sm"
+              >
+                Your Profile
+              </Link>
+            </div>
+          </div>
+
+          <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(5,4,18,0.45)] backdrop-blur-xl">
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-[10px] font-mono tracking-[0.3em] uppercase text-white/35">
+                Live Signal
+              </p>
+              <span className="rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-[#A79EFF]">
+                Devnet
+              </span>
+            </div>
+            <div className="space-y-4">
+              {[
+                {
+                  label: "Reciprocal access",
+                  value: "Apps must write before they read",
+                  tone: "purple",
+                },
+                {
+                  label: "User-controlled consent",
+                  value: "Wallet signature required for every grant",
+                  tone: "blue",
+                },
+                {
+                  label: "Portable identity",
+                  value: "Credentials and score travel across apps",
+                  tone: "purple",
+                },
+              ].map(({ label, value, tone }) => (
+                <div
+                  key={label}
+                  className="rounded-2xl border border-white/[0.06] bg-black/20 p-4"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <span
+                      className={`h-2.5 w-2.5 rounded-full ${
+                        tone === "blue" ? "bg-blue-400" : "bg-[#7B6FF8]"
+                      }`}
+                    />
+                    <p className="text-sm font-semibold">{label}</p>
+                  </div>
+                  <p className="text-sm text-white/40 leading-relaxed">{value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6 rounded-2xl border border-white/[0.06] bg-[#0D0A1F] px-4 py-3">
+              <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-1">
+                Program
+              </p>
+              <p className="font-mono text-xs text-[#A79EFF] break-all">
+                {PROGRAM_ID}
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -83,32 +144,32 @@ export default function Home() {
             {
               step: "01",
               title: "App requests credentials",
-              body: "Any registered app requests read access to a user's verified credentials — financial skills, activity history, reputation.",
+              body: "Any registered app requests read access to a user&apos;s verified credentials: financial skills, activity history, reputation.",
               color: "blue",
             },
             {
               step: "02",
               title: "Must contribute data back",
               body: "The request_access instruction requires a data_contribution in the same transaction. No contribution = no access. Enforced on-chain.",
-              color: "emerald",
+              color: "purple",
             },
             {
               step: "03",
               title: "User signs consent",
-              body: "The user's wallet must co-sign the transaction. No silent data harvesting. Every read is a visible on-chain event.",
+              body: "The user&apos;s wallet must co-sign the transaction. No silent data harvesting. Every read is a visible on-chain event.",
               color: "purple",
             },
           ].map(({ step, title, body, color }) => (
             <div
               key={step}
-              className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6"
+              className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-[0_20px_40px_rgba(7,5,20,0.24)]"
             >
               <p
                 className={`text-[10px] font-mono tracking-widest uppercase mb-4 ${
                   color === "blue"
                     ? "text-blue-400/60"
-                    : color === "emerald"
-                    ? "text-emerald-400/60"
+                    : color === "purple"
+                    ? "text-[#7B6FF8]/60"
                     : "text-purple-400/60"
                 }`}
               >
@@ -121,7 +182,7 @@ export default function Home() {
         </div>
 
         {/* Flow diagram */}
-        <div className="mt-8 rounded-2xl border border-white/[0.06] bg-white/[0.015] p-6 font-mono text-sm">
+        <div className="mt-8 rounded-[28px] border border-white/[0.06] bg-[#0B0916]/70 p-6 font-mono text-sm shadow-[0_20px_50px_rgba(4,4,14,0.32)] backdrop-blur-xl">
           <p className="text-[10px] tracking-widest uppercase text-white/20 mb-4">
             On-chain flow
           </p>
@@ -130,27 +191,27 @@ export default function Home() {
               <span className="text-blue-400">app</span>.requestAccess(
             </p>
             <p className="pl-6">
-              user: <span className="text-emerald-400">wallet.publicKey</span>,
+              user: <span className="text-[#7B6FF8]">wallet.publicKey</span>,
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <span className="text-white/20">{"// must co-sign"}</span>
             </p>
             <p className="pl-6">
               fields: [
               <span className="text-yellow-400/80">
-                "credit-score", "stocks"
+                &quot;credit-score&quot;, &quot;stocks&quot;
               </span>
               ],
             </p>
             <p className="pl-6">
               contribution: {"{"}&nbsp;
-              <span className="text-white/20">{"// REQUIRED — or tx fails"}</span>
+              <span className="text-white/20">{"// REQUIRED - or tx fails"}</span>
             </p>
             <p className="pl-12">
               slug:{" "}
-              <span className="text-yellow-400/80">"trading-history"</span>,
+              <span className="text-yellow-400/80">&quot;trading-history&quot;</span>,
             </p>
             <p className="pl-12">
-              tier: <span className="text-yellow-400/80">"gold"</span>,
+              tier: <span className="text-yellow-400/80">&quot;gold&quot;</span>,
             </p>
             <p className="pl-12">
               score: <span className="text-purple-400">85</span>,
@@ -159,7 +220,7 @@ export default function Home() {
             <p>)</p>
           </div>
           <div className="mt-4 pt-4 border-t border-white/[0.06] flex items-center gap-2 text-[11px]">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
+            <span className="w-2 h-2 rounded-full bg-[#5B4FE8] inline-block" />
             <span className="text-white/30">
               On success: contribution written on-chain, consent PDA created,
               app can read credentials
@@ -196,13 +257,13 @@ export default function Home() {
           ].map(({ layer, desc, status, detail }) => (
             <div
               key={layer}
-              className="flex items-start gap-6 p-5 rounded-xl border border-white/[0.06] bg-white/[0.015]"
+              className="flex items-start gap-6 p-5 rounded-2xl border border-white/[0.06] bg-white/[0.03] shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
             >
               <div className="shrink-0 pt-0.5">
                 <span
                   className={`text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-md ${
                     status === "live"
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                      ? "bg-[#5B4FE8]/10 text-[#7B6FF8] border border-[#5B4FE8]/20"
                       : "bg-white/[0.05] text-white/30 border border-white/[0.08]"
                   }`}
                 >
@@ -227,14 +288,14 @@ export default function Home() {
           Developer integration
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.015] p-6">
+          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-[0_16px_36px_rgba(6,5,18,0.2)]">
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-4">
               Install
             </p>
             <div className="font-mono text-sm">
               <p className="text-white/40">
                 npm install{" "}
-                <span className="text-emerald-400">@glurk/sdk</span>
+                <span className="text-[#7B6FF8]">@glurk/sdk</span>
               </p>
               <p className="text-white/40 mt-1">
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -242,7 +303,7 @@ export default function Home() {
               </p>
             </div>
           </div>
-          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.015] p-6">
+          <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 shadow-[0_16px_36px_rgba(6,5,18,0.2)]">
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-4">
               Verify a credential
             </p>
@@ -251,21 +312,21 @@ export default function Home() {
                 <span className="text-blue-400">import</span>{" "}
                 {"{ Glurk }"}{" "}
                 <span className="text-blue-400">from</span>{" "}
-                <span className="text-yellow-400/80">'@glurk/sdk'</span>;
+                <span className="text-yellow-400/80">&apos;@glurk/sdk&apos;</span>;
               </p>
               <p className="mt-2">
                 <span className="text-blue-400">const</span> glurk ={" "}
                 <span className="text-blue-400">new</span>{" "}
-                <span className="text-emerald-400">Glurk</span>(connection);
+                <span className="text-[#7B6FF8]">Glurk</span>(connection);
               </p>
               <p className="mt-2 text-white/40">
                 <span className="text-white/60">const</span> cred ={" "}
                 <span className="text-blue-400">await</span> glurk.
-                <span className="text-emerald-400">verify</span>(
+                <span className="text-[#7B6FF8]">verify</span>(
               </p>
               <p className="pl-4 text-white/40">
                 STAQ_ISSUER, wallet,{" "}
-                <span className="text-yellow-400/80">"credit-score"</span>
+                <span className="text-yellow-400/80">&quot;credit-score&quot;</span>
               </p>
               <p className="text-white/40">);</p>
               <p className="mt-1 text-white/40">
@@ -289,12 +350,12 @@ export default function Home() {
             href={EXPLORER_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="group rounded-2xl border border-white/[0.06] bg-white/[0.015] p-5 hover:border-white/[0.12] transition-colors"
+            className="group rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 hover:border-white/[0.12] transition-colors shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
           >
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-3">
               Anchor Program
             </p>
-            <p className="font-mono text-xs text-emerald-400 break-all">
+            <p className="font-mono text-xs text-[#7B6FF8] break-all">
               {PROGRAM_ID.slice(0, 22)}
               <br />
               {PROGRAM_ID.slice(22)}
@@ -307,7 +368,7 @@ export default function Home() {
             href="https://staq.slayerblade.site"
             target="_blank"
             rel="noopener noreferrer"
-            className="group rounded-2xl border border-white/[0.06] bg-white/[0.015] p-5 hover:border-white/[0.12] transition-colors"
+            className="group rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 hover:border-white/[0.12] transition-colors shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
           >
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-3">
               Live Issuer
@@ -322,22 +383,22 @@ export default function Home() {
           </a>
           <Link
             href="/demo/lend"
-            className="group rounded-2xl border border-emerald-500/[0.12] bg-emerald-500/[0.03] p-5 hover:border-emerald-500/[0.25] transition-colors"
+            className="group rounded-2xl border border-[#5B4FE8]/[0.12] bg-[#5B4FE8]/[0.05] p-5 hover:border-[#5B4FE8]/[0.25] transition-colors shadow-[0_18px_40px_rgba(91,79,232,0.12)]"
           >
-            <p className="text-[10px] font-mono tracking-widest uppercase text-emerald-400/40 mb-3">
+            <p className="text-[10px] font-mono tracking-widest uppercase text-[#7B6FF8]/40 mb-3">
               Demo · DeFi
             </p>
             <p className="text-[15px] font-bold">StaqLend 🏦</p>
             <p className="text-sm text-white/35 mt-1">
               Lower collateral based on verified financial knowledge.
             </p>
-            <p className="text-[11px] text-emerald-400/40 mt-2 group-hover:text-emerald-400/70 transition-colors">
+            <p className="text-[11px] text-[#7B6FF8]/40 mt-2 group-hover:text-[#7B6FF8]/70 transition-colors">
               Try the flow →
             </p>
           </Link>
           <Link
             href="/demo/jobs"
-            className="group rounded-2xl border border-blue-500/[0.12] bg-blue-500/[0.03] p-5 hover:border-blue-500/[0.25] transition-colors"
+            className="group rounded-2xl border border-blue-500/[0.12] bg-blue-500/[0.04] p-5 hover:border-blue-500/[0.25] transition-colors shadow-[0_18px_40px_rgba(54,126,255,0.1)]"
           >
             <p className="text-[10px] font-mono tracking-widest uppercase text-blue-400/40 mb-3">
               Demo · Hiring
