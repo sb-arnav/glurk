@@ -20,86 +20,6 @@ const TIER_COLORS: Record<string, string> = {
 };
 
 type Credential = { slug: string; name: string; tier: string; score: number; issuer: string };
-type SeedResult = { slug: string; status: string };
-
-function SeedPanel({ wallet, onDone }: { wallet: string; onDone: () => void }) {
-  const [seeding, setSeeding] = useState(false);
-  const [results, setResults] = useState<SeedResult[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  async function handleSeed() {
-    setSeeding(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/seed", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wallet }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Seed failed");
-      setResults(data.results || []);
-      setTimeout(onDone, 1200);
-    } catch (e: unknown) {
-      setError((e as Error).message);
-      setSeeding(false);
-    }
-  }
-
-  if (results.length > 0) {
-    return (
-      <div className="rounded-[24px] border border-[#5B4FE8]/20 bg-[#5B4FE8]/[0.05] p-5 shadow-[0_20px_48px_rgba(91,79,232,0.14)]">
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm font-semibold text-[#7B6FF8]">Credentials issued on devnet</p>
-          <span className="rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-2 py-1 text-[10px] font-mono uppercase tracking-wider text-[#A79EFF]">
-            Ready
-          </span>
-        </div>
-        <div className="space-y-1.5">
-          {results.map((r) => (
-            <div key={r.slug} className="flex items-center gap-2 text-xs text-white/50">
-              <span className="text-[#7B6FF8]">{r.status === "issued" ? "✓" : "·"}</span>
-              <span>{CREDENTIAL_NAMES[r.slug] || r.slug}</span>
-              {r.status === "already_exists" && <span className="text-white/25">(already exists)</span>}
-            </div>
-          ))}
-        </div>
-        <p className="text-[11px] text-white/25 mt-3">Loading your demo...</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-[24px] border border-white/[0.08] bg-white/[0.04] p-5 shadow-[0_20px_48px_rgba(6,5,18,0.22)] backdrop-blur-xl">
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-[10px] font-mono tracking-widest uppercase text-white/25">Bootstrap identity</p>
-        <span className="text-[10px] font-mono uppercase tracking-wider text-white/20">4 credentials</span>
-      </div>
-      <p className="font-semibold mb-1">No credentials found on devnet</p>
-      <p className="text-sm text-white/35 leading-relaxed mb-5">
-        This wallet has no Staq credentials on Solana devnet. Seed 4 demo credentials to see the full flow — each one mints a real Token-2022 SBT on-chain.
-      </p>
-      {error && (
-        <p className="text-xs text-red-400 bg-red-500/[0.08] border border-red-500/[0.15] rounded-lg px-3 py-2 mb-4">{error}</p>
-      )}
-      <button
-        onClick={handleSeed}
-        disabled={seeding}
-        className="w-full py-3 rounded-xl bg-[#5B4FE8] text-white text-sm font-bold hover:bg-[#6B5FF8] transition-colors disabled:opacity-60 flex items-center justify-center gap-2"
-      >
-        {seeding && (
-          <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" strokeDasharray="31.4" strokeDashoffset="10" strokeLinecap="round" />
-          </svg>
-        )}
-        {seeding ? "Issuing on Solana devnet (~30s)..." : "Seed 4 demo credentials"}
-      </button>
-      <p className="text-[11px] text-white/15 mt-3 text-center">
-        Issues real Token-2022 SBTs + Anchor PDAs on devnet
-      </p>
-    </div>
-  );
-}
 
 function LendContent() {
   const searchParams = useSearchParams();
@@ -225,17 +145,25 @@ function LendContent() {
             </div>
           </div>
         ) : userData?.credentials.length === 0 ? (
-          <div>
-            <div className="flex items-center gap-3 mb-6">
+          <div className="rounded-[24px] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[0_20px_48px_rgba(6,5,18,0.22)]">
+            <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 rounded-full bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 flex items-center justify-center">
                 <Image src="/glurk.png" alt="Glurk" width={24} height={24} />
               </div>
               <p className="font-mono text-sm text-white/50">{userData.wallet.slice(0, 8)}...{userData.wallet.slice(-4)}</p>
             </div>
-            <SeedPanel
-              wallet={userData.wallet}
-              onDone={() => loadCredentials(userData.wallet, userData.txSig)}
-            />
+            <p className="font-semibold mb-1">No credentials found</p>
+            <p className="text-sm text-white/35 leading-relaxed mb-5">
+              StaqLend uses your Glurk identity to personalize rates. Earn your first credentials on Staq, then come back to see what you unlock.
+            </p>
+            <a
+              href="https://staq.slayerblade.site"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.1] text-white/60 text-sm font-semibold hover:bg-white/[0.07] hover:text-white/80 transition-all"
+            >
+              Open Staq ↗
+            </a>
           </div>
         ) : (
           <div>
