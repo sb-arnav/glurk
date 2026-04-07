@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="glurk-gradient" x1="30" y1="20" x2="98" y2="104" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A855F7" />
+      <stop offset="0.52" stop-color="#6D5CFF" />
+      <stop offset="1" stop-color="#2563EB" />
+    </linearGradient>
+  </defs>
+  <text
+    x="64"
+    y="90"
+    text-anchor="middle"
+    font-family="Arial Black, Inter, system-ui, sans-serif"
+    font-size="88"
+    font-weight="900"
+    letter-spacing="-4"
+    fill="url(#glurk-gradient)"
+  >
+    G
+  </text>
+</svg>
