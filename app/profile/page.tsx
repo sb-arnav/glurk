@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { PublicKey } from "@solana/web3.js";
 
 import type { Transaction } from "@solana/web3.js";
@@ -220,14 +221,16 @@ export default function ProfilePage() {
         <nav className="border-b border-white/[0.06] px-6 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 flex items-center justify-center text-[10px] font-black text-[#7B6FF8]">G</div>
+              <Image src="/glurk.png" alt="Glurk" width={24} height={24} />
               <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
             </Link>
           </div>
         </nav>
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-sm text-center">
-            <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.08] flex items-center justify-center mx-auto mb-6 text-2xl font-black text-white/20">G</div>
+            <div className="w-16 h-16 flex items-center justify-center mx-auto mb-6">
+              <Image src="/glurk.png" alt="Glurk" width={64} height={64} />
+            </div>
             <h1 className="text-2xl font-black mb-2">Your Identity</h1>
             <p className="text-white/35 text-sm leading-relaxed mb-8">
               Connect your wallet to see your real on-chain credentials, Glurk Score, and which apps have access to your data.
@@ -267,7 +270,7 @@ export default function ProfilePage() {
         <nav className="border-b border-white/[0.06] px-6 py-4">
           <div className="max-w-2xl mx-auto flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-md bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 flex items-center justify-center text-[10px] font-black text-[#7B6FF8]">G</div>
+              <Image src="/glurk.png" alt="Glurk" width={24} height={24} />
               <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
             </Link>
           </div>
