@@ -361,7 +361,7 @@ export default function Home() {
         <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-8">
           Live proof
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <a
             href={EXPLORER_URL}
             target="_blank"
@@ -412,6 +412,23 @@ export default function Home() {
               Try the flow →
             </p>
           </Link>
+          <a
+            href="https://dial.to/?action=solana-action:https://glurk.vercel.app/api/actions/consent?app=StaqLend&contribute_slug=trading-history&contribute_tier=gold&contribute_score=80"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group rounded-2xl border border-yellow-500/[0.12] bg-yellow-500/[0.03] p-5 hover:border-yellow-500/[0.25] transition-colors shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
+          >
+            <p className="text-[10px] font-mono tracking-widest uppercase text-yellow-400/40 mb-3">
+              Solana Blink
+            </p>
+            <p className="text-[15px] font-bold">Consent via Blink ⚡</p>
+            <p className="text-sm text-white/35 mt-1">
+              Approve credential access directly from X/Twitter — no app needed.
+            </p>
+            <p className="text-[11px] text-yellow-400/40 mt-2 group-hover:text-yellow-400/70 transition-colors">
+              Try on dial.to →
+            </p>
+          </a>
           <Link
             href="/demo/jobs"
             className="group rounded-2xl border border-blue-500/[0.12] bg-blue-500/[0.04] p-5 hover:border-blue-500/[0.25] transition-colors shadow-[0_18px_40px_rgba(54,126,255,0.1)]"
