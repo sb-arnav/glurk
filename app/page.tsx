@@ -11,7 +11,7 @@ export default function Home() {
       <nav className="border-b border-white/[0.06] px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Glurk" width={28} height={28} className="rounded-lg" />
+            <Image src="/logo.png" alt="Glurk" width={28} height={28} className="rounded-lg" style={{ mixBlendMode: "screen" }} />
             <span className="font-bold tracking-tight">Glurk Protocol</span>
           </div>
           <div className="flex items-center gap-6 text-sm">
@@ -357,7 +357,7 @@ export default function Home() {
       <footer className="border-t border-white/[0.05] px-6 py-8">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Glurk" width={20} height={20} className="rounded-md" />
+            <Image src="/logo.png" alt="Glurk" width={20} height={20} className="rounded-md" style={{ mixBlendMode: "screen" }} />
             <span className="text-sm font-semibold text-white/40">
               Glurk Protocol
             </span>
