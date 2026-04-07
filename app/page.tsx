@@ -413,7 +413,7 @@ export default function Home() {
             </p>
           </Link>
           <a
-            href="https://dial.to/?action=solana-action:https://glurk.vercel.app/api/actions/consent?app=StaqLend&contribute_slug=trading-history&contribute_tier=gold&contribute_score=80"
+            href="https://dial.to/?action=solana-action:https://glurk.slayerblade.site/api/actions/consent?app=StaqLend&contribute_slug=trading-history&contribute_tier=gold&contribute_score=80"
             target="_blank"
             rel="noopener noreferrer"
             className="group rounded-2xl border border-yellow-500/[0.12] bg-yellow-500/[0.03] p-5 hover:border-yellow-500/[0.25] transition-colors shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
