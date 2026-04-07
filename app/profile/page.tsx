@@ -72,6 +72,83 @@ type ChainData = {
   glurkScore: number;
 };
 
+type SeedResult = { slug: string; status: string };
+
+const CREDENTIAL_NAMES: Record<string, string> = {
+  "credit-score": "Credit Score Basics",
+  stocks: "Stock Market Basics",
+  upi: "UPI Payments",
+  "sell-rules": "Sell Rules",
+};
+
+function SeedPanel({ wallet, onDone }: { wallet: string; onDone: () => void }) {
+  const [seeding, setSeeding] = useState(false);
+  const [results, setResults] = useState<SeedResult[]>([]);
+  const [seedError, setSeedError] = useState<string | null>(null);
+
+  async function handleSeed() {
+    setSeeding(true);
+    setSeedError(null);
+    try {
+      const res = await fetch("/api/seed", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wallet }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Seed failed");
+      setResults(data.results || []);
+      setTimeout(onDone, 1500);
+    } catch (e: unknown) {
+      setSeedError((e as Error).message);
+      setSeeding(false);
+    }
+  }
+
+  if (results.length > 0) {
+    return (
+      <div className="py-10 text-center rounded-2xl border border-[#5B4FE8]/20 bg-[#5B4FE8]/[0.04]">
+        <p className="text-sm font-semibold text-[#7B6FF8] mb-3">Issued on devnet ✓</p>
+        <div className="space-y-1 mb-3">
+          {results.map((r) => (
+            <p key={r.slug} className="text-xs text-white/40">
+              <span className="text-[#7B6FF8] mr-1">{r.status === "issued" ? "✓" : "·"}</span>
+              {CREDENTIAL_NAMES[r.slug] || r.slug}
+              {r.status === "already_exists" && <span className="text-white/20 ml-1">(existed)</span>}
+            </p>
+          ))}
+        </div>
+        <p className="text-[11px] text-white/20">Reloading your profile...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-8 text-center rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+      <p className="text-sm text-white/35 mb-1">No credentials on devnet yet.</p>
+      <p className="text-[11px] text-white/20 mb-5">
+        Seed 4 demo credentials to see what a real Glurk identity looks like.
+      </p>
+      {seedError && (
+        <p className="text-xs text-red-400 bg-red-500/[0.08] border border-red-500/[0.15] rounded-lg px-3 py-2 mx-4 mb-4">{seedError}</p>
+      )}
+      <button
+        onClick={handleSeed}
+        disabled={seeding}
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#5B4FE8] text-white text-sm font-bold hover:bg-[#6B5FF8] transition-colors disabled:opacity-60"
+      >
+        {seeding && (
+          <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" strokeDasharray="31.4" strokeDashoffset="10" strokeLinecap="round" />
+          </svg>
+        )}
+        {seeding ? "Issuing on Solana devnet (~30s)..." : "Seed 4 demo credentials"}
+      </button>
+      <p className="text-[11px] text-white/15 mt-3">Mints real Token-2022 SBTs on devnet</p>
+    </div>
+  );
+}
+
 function ScoreArc({ score }: { score: number }) {
   const pct = score / 1000;
   const r = 54;
@@ -306,16 +383,14 @@ export default function ProfilePage() {
               <div className="flex-1 h-px bg-white/[0.06]" />
             </div>
 
-            {session ? (
-              <div className="text-center">
-                <p className="text-xs text-white/40 mb-1">Signed in as <span className="text-[#7B6FF8]">{session.user?.email}</span></p>
-                <p className="text-[11px] text-white/20">
-                  {sessionStatus === "loading"
-                    ? "Checking linked wallet..."
-                    : "Connect your wallet above to link it to your email."}
-                </p>
-              </div>
-            ) : (
+	            {session ? (
+	              <div className="text-center">
+	                <p className="text-xs text-white/40 mb-1">Signed in as <span className="text-[#7B6FF8]">{session.user?.email}</span></p>
+	                <p className="text-[11px] text-white/20">
+	                  Connect your wallet above to link it to your email.
+	                </p>
+	              </div>
+	            ) : (
               <button
                 onClick={() => signIn("google")}
                 className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-xl bg-white/[0.03] border border-white/[0.08] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all"
@@ -457,20 +532,10 @@ export default function ProfilePage() {
             Credentials {creds.length > 0 && <span className="text-white/15">· live from devnet</span>}
           </p>
           {creds.length === 0 ? (
-            <div className="py-10 text-center rounded-2xl border border-white/[0.05] bg-white/[0.03] shadow-[0_18px_40px_rgba(6,5,18,0.2)]">
-              <p className="text-sm text-white/25">No credentials found for this wallet.</p>
-              <p className="text-[11px] text-white/15 mt-1">
-                Use Staq to earn your first credentials, then come back.
-              </p>
-                <a
-                  href="https://staq.slayerblade.site"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block mt-3 text-[11px] text-[#7B6FF8]/60 hover:text-[#7B6FF8] transition-colors"
-                >
-                  staq.slayerblade.site ↗
-                </a>
-            </div>
+            <SeedPanel
+              wallet={walletAddress!}
+              onDone={() => loadCredentials(walletAddress!)}
+            />
           ) : (
             <div className="space-y-2">
               {creds.map((c) => (
