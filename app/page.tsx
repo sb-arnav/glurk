@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 
 const PROGRAM_ID = "5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ";
 const EXPLORER_URL = `https://explorer.solana.com/address/${PROGRAM_ID}?cluster=devnet`;
@@ -11,7 +10,9 @@ export default function Home() {
       <nav className="border-b border-white/[0.06] px-6 py-4">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Glurk" width={28} height={28} className="rounded-lg" style={{ mixBlendMode: "screen" }} />
+            <div className="w-7 h-7 rounded-lg bg-[#1a0f3a] border border-[#5B4FE8]/40 flex items-center justify-center text-xs font-black text-[#5B4FE8]">
+              G
+            </div>
             <span className="font-bold tracking-tight">Glurk Protocol</span>
           </div>
           <div className="flex items-center gap-6 text-sm">
@@ -357,7 +358,9 @@ export default function Home() {
       <footer className="border-t border-white/[0.05] px-6 py-8">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Glurk" width={20} height={20} className="rounded-md" style={{ mixBlendMode: "screen" }} />
+            <div className="w-5 h-5 rounded-md bg-[#1a0f3a] border border-[#5B4FE8]/40 flex items-center justify-center text-[10px] font-black text-[#5B4FE8]">
+              G
+            </div>
             <span className="text-sm font-semibold text-white/40">
               Glurk Protocol
             </span>
