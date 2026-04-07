@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import StatsBar from "./components/StatsBar";
 
 const PROGRAM_ID = "5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ";
 const EXPLORER_URL = `https://explorer.solana.com/address/${PROGRAM_ID}?cluster=devnet`;
@@ -77,6 +78,9 @@ export default function Home() {
                 Your Profile
               </Link>
             </div>
+            <div className="mt-5">
+              <StatsBar />
+            </div>
           </div>
 
           <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(5,4,18,0.45)] backdrop-blur-xl">
@@ -144,7 +148,7 @@ export default function Home() {
             {
               step: "01",
               title: "App requests credentials",
-              body: "Any registered app requests read access to a user&apos;s verified credentials: financial skills, activity history, reputation.",
+              body: "Any registered app requests read access to a user's verified credentials: financial skills, activity history, reputation.",
               color: "blue",
             },
             {
@@ -156,7 +160,7 @@ export default function Home() {
             {
               step: "03",
               title: "User signs consent",
-              body: "The user&apos;s wallet must co-sign the transaction. No silent data harvesting. Every read is a visible on-chain event.",
+              body: "The user's wallet must co-sign the transaction. No silent data harvesting. Every read is a visible on-chain event.",
               color: "purple",
             },
           ].map(({ step, title, body, color }) => (
@@ -279,6 +283,165 @@ export default function Home() {
               </div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Utility section */}
+      <section className="max-w-5xl mx-auto px-6 pb-20">
+        <div className="flex items-end justify-between gap-6 mb-8">
+          <div className="max-w-2xl">
+            <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">
+              Why This Wins
+            </p>
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight mb-3">
+              A credential only matters when it unlocks something real.
+            </h2>
+            <p className="text-white/40 leading-relaxed">
+              Glurk is strongest when identity moves from profile theater to protocol utility.
+              These are the product vectors that make the network valuable, not just novel.
+            </p>
+          </div>
+          <div className="hidden md:block text-right">
+            <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-white/20 mb-1">
+              Strategy
+            </p>
+            <p className="text-sm text-white/35">Privacy, scale, distribution, utility.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            {
+              title: "Private proofs",
+              label: "ZK vector",
+              accent: "purple",
+              body: "Let users prove a threshold like score > 70 without revealing the raw credential. That makes Glurk usable in lending, hiring, and gated communities without turning identity into surveillance.",
+              win: "Identity becomes enterprise-safe instead of merely on-chain.",
+            },
+            {
+              title: "One-click distribution",
+              label: "Blinks + Actions",
+              accent: "yellow",
+              body: "Turn consent and credential issuance into native Solana Actions so a user can claim or approve directly from social surfaces. No detour through a full product flow.",
+              win: "Glurk stops feeling like infrastructure and starts feeling instant.",
+            },
+            {
+              title: "Undercollateralized lending",
+              label: "DeFi unlock",
+              accent: "purple",
+              body: "If the protocol can attest to verified financial knowledge and behavior, lending apps can price risk differently. The identity layer immediately translates into better borrowing terms.",
+              win: "The protocol earns attention by saving users real money.",
+            },
+            {
+              title: "Mass issuance at scale",
+              label: "cNFT path",
+              accent: "blue",
+              body: "Compressed credentials keep the economics viable when issuers move from hundreds of users to millions. Scale needs to be a protocol feature, not a future rewrite.",
+              win: "Distribution gets cheaper as adoption gets bigger.",
+            },
+          ].map(({ title, label, accent, body, win }) => (
+            <div
+              key={title}
+              className={`rounded-[28px] border p-6 shadow-[0_20px_48px_rgba(6,5,18,0.22)] ${
+                accent === "yellow"
+                  ? "border-yellow-500/[0.14] bg-yellow-500/[0.04]"
+                  : accent === "blue"
+                  ? "border-blue-500/[0.12] bg-blue-500/[0.04]"
+                  : "border-[#5B4FE8]/[0.14] bg-[#5B4FE8]/[0.05]"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span
+                  className={`rounded-full px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider border ${
+                    accent === "yellow"
+                      ? "border-yellow-500/20 bg-yellow-500/10 text-yellow-300"
+                      : accent === "blue"
+                      ? "border-blue-500/20 bg-blue-500/10 text-blue-300"
+                      : "border-[#5B4FE8]/20 bg-[#5B4FE8]/10 text-[#A79EFF]"
+                  }`}
+                >
+                  {label}
+                </span>
+                <span
+                  className={`h-2.5 w-2.5 rounded-full ${
+                    accent === "yellow"
+                      ? "bg-yellow-400"
+                      : accent === "blue"
+                      ? "bg-blue-400"
+                      : "bg-[#7B6FF8]"
+                  }`}
+                />
+              </div>
+              <h3 className="text-xl font-bold mb-3">{title}</h3>
+              <p className="text-sm text-white/40 leading-relaxed mb-4">{body}</p>
+              <div className="rounded-2xl border border-white/[0.06] bg-black/20 px-4 py-3">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/20 mb-1">
+                  The win
+                </p>
+                <p className="text-sm text-white/60">{win}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Positioning section */}
+      <section className="max-w-5xl mx-auto px-6 pb-20">
+        <div className="rounded-[32px] border border-white/[0.08] bg-white/[0.04] p-6 md:p-8 shadow-[0_24px_80px_rgba(5,4,18,0.36)] backdrop-blur-xl">
+          <div className="grid gap-8 md:grid-cols-[0.95fr_1.05fr]">
+            <div>
+              <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">
+                Positioning
+              </p>
+              <h2 className="text-3xl font-black tracking-tight mb-4">
+                Not another wallet profile.
+              </h2>
+              <p className="text-white/40 leading-relaxed mb-6">
+                Most identity products stop at aggregation. Glurk is different because it enforces reciprocity:
+                if an app wants to read, it has to write. That turns every integration into a positive-sum loop.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {["reciprocal by default", "wallet-signed consent", "portable reputation", "cross-app compounding"].map((chip) => (
+                  <span
+                    key={chip}
+                    className="rounded-full border border-white/[0.08] bg-black/20 px-3 py-1.5 text-[11px] font-mono text-white/40"
+                  >
+                    {chip}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/20 mb-2">
+                  Hiring
+                </p>
+                <p className="text-sm font-semibold mb-2">Skip the take-home.</p>
+                <p className="text-xs text-white/40 leading-relaxed">
+                  Verified skills unlock direct applications and reduce screening friction.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/20 mb-2">
+                  Lending
+                </p>
+                <p className="text-sm font-semibold mb-2">Price trust better.</p>
+                <p className="text-xs text-white/40 leading-relaxed">
+                  Better verified behavior means lower collateral and fairer access to capital.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/[0.06] bg-black/20 p-4">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/20 mb-2">
+                  Social
+                </p>
+                <p className="text-sm font-semibold mb-2">Consent in the feed.</p>
+                <p className="text-xs text-white/40 leading-relaxed">
+                  Blinks turn identity actions into something users can trigger anywhere.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
