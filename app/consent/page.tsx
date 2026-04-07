@@ -253,8 +253,8 @@ function ConsentContent() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-16 h-16 rounded-full bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 flex items-center justify-center mx-auto mb-4">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5B4FE8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12l5 5L20 7" />
             </svg>
           </div>
@@ -263,7 +263,7 @@ function ConsentContent() {
             href={`${EXPLORER_BASE}/${consent.txSig}?cluster=devnet`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[11px] font-mono text-emerald-400/60 hover:text-emerald-400 transition-colors mt-2 block"
+            className="text-[11px] font-mono text-[#7B6FF8]/60 hover:text-[#7B6FF8] transition-colors mt-2 block"
           >
             {consent.txSig.slice(0, 16)}... on Solana ↗
           </a>
@@ -277,8 +277,8 @@ function ConsentContent() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-4">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-16 h-16 rounded-full bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 flex items-center justify-center mx-auto mb-4">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5B4FE8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M5 12l5 5L20 7" />
             </svg>
           </div>
@@ -410,12 +410,12 @@ function ConsentContent() {
                   </div>
                 </div>
               ))}
-              <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-emerald-500/[0.04] border border-emerald-500/[0.08]">
+              <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-[#5B4FE8]/[0.04] border border-[#5B4FE8]/[0.08]">
                 <div>
-                  <p className="text-sm font-semibold text-emerald-400">Glurk Score</p>
+                  <p className="text-sm font-semibold text-[#7B6FF8]">Glurk Score</p>
                   <p className="text-[11px] text-white/30">Cross-app reputation</p>
                 </div>
-                <span className="text-lg font-black text-emerald-400">{displayScore}</span>
+                <span className="text-lg font-black text-[#7B6FF8]">{displayScore}</span>
               </div>
             </div>
           </div>
@@ -477,7 +477,7 @@ function ConsentContent() {
             <button
               onClick={handleApprove}
               disabled={isProcessing}
-              className="flex-1 py-3.5 rounded-xl bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400 transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 rounded-xl bg-[#5B4FE8] text-white text-sm font-bold hover:bg-[#6B5FF8] transition-all disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isProcessing && (
                 <svg className="animate-spin w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">

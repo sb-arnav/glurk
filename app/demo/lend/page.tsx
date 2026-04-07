@@ -47,12 +47,12 @@ function SeedPanel({ wallet, onDone }: { wallet: string; onDone: () => void }) {
 
   if (results.length > 0) {
     return (
-      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/[0.03] p-5">
-        <p className="text-sm font-semibold text-emerald-400 mb-3">Credentials issued on devnet</p>
+      <div className="rounded-xl border border-[#5B4FE8]/20 bg-[#5B4FE8]/[0.03] p-5">
+        <p className="text-sm font-semibold text-[#7B6FF8] mb-3">Credentials issued on devnet</p>
         <div className="space-y-1.5">
           {results.map((r) => (
             <div key={r.slug} className="flex items-center gap-2 text-xs text-white/50">
-              <span className="text-emerald-400">{r.status === "issued" ? "✓" : "·"}</span>
+              <span className="text-[#7B6FF8]">{r.status === "issued" ? "✓" : "·"}</span>
               <span>{CREDENTIAL_NAMES[r.slug] || r.slug}</span>
               {r.status === "already_exists" && <span className="text-white/25">(already exists)</span>}
             </div>
@@ -93,7 +93,6 @@ function SeedPanel({ wallet, onDone }: { wallet: string; onDone: () => void }) {
 
 function LendContent() {
   const searchParams = useSearchParams();
-  const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<{
     score: number;
@@ -101,6 +100,8 @@ function LendContent() {
     txSig: string;
     credentials: Credential[];
   } | null>(null);
+  const approved = searchParams.get("approved") === "true";
+  const callbackWallet = approved ? searchParams.get("wallet") : null;
 
   const loadCredentials = useCallback((wallet: string, txSig: string) => {
     setLoading(true);
@@ -123,12 +124,11 @@ function LendContent() {
   }, []);
 
   useEffect(() => {
-    const approved = searchParams.get("approved");
-    const wallet = searchParams.get("wallet");
-    if (approved !== "true" || !wallet) return;
-    setConnected(true);
-    loadCredentials(wallet, searchParams.get("txSig") || "");
-  }, [searchParams, loadCredentials]);
+    if (!callbackWallet) return;
+    queueMicrotask(() => {
+      loadCredentials(callbackWallet, searchParams.get("txSig") || "");
+    });
+  }, [callbackWallet, loadCredentials, searchParams]);
 
   const collateralSavings = userData ? Math.round((userData.score / 1000) * 55) : 0;
   const yourCollateral = 150 - collateralSavings;
@@ -159,7 +159,7 @@ function LendContent() {
       </header>
 
       <div className="max-w-lg mx-auto px-6 py-8">
-        {!connected ? (
+        {!callbackWallet ? (
           <div>
             <h1 className="text-3xl font-black tracking-tight mb-3">
               Borrow smarter with <span className="text-[#5B4FE8]">verified skills.</span>
