@@ -125,16 +125,64 @@ function CredentialRow({ cred, hasSas }: { cred: Credential; hasSas?: boolean })
   );
 }
 
-function ConsentRow({ consent }: { consent: Consent }) {
+function ConsentRow({
+  consent,
+  userWallet,
+  onRevoked,
+}: {
+  consent: Consent;
+  userWallet: string;
+  onRevoked: (pubkey: string) => void;
+}) {
+  const [revoking, setRevoking] = useState(false);
+  const [revokeError, setRevokeError] = useState<string | null>(null);
+
   const date = new Date(consent.grantedAt * 1000).toLocaleDateString("en-IN", {
     year: "numeric", month: "short", day: "numeric",
   });
+
+  async function handleRevoke() {
+    if (!window.solana?.isPhantom) return;
+    setRevoking(true);
+    setRevokeError(null);
+    try {
+      const res = await fetch("/api/revoke-consent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userWallet, requesterWallet: consent.requester }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to build transaction");
+
+      const { Transaction, Connection } = await import("@solana/web3.js");
+      const txBytes = Buffer.from(data.tx, "base64");
+      const tx = Transaction.from(txBytes);
+      const signed = await window.solana.signTransaction(tx);
+
+      const connection = new Connection("https://api.devnet.solana.com", "confirmed");
+      const txSig = await connection.sendRawTransaction(signed.serialize());
+      await connection.confirmTransaction({
+        signature: txSig,
+        blockhash: data.blockhash,
+        lastValidBlockHeight: data.lastValidBlockHeight,
+      });
+      onRevoked(consent.pubkey);
+    } catch (e: unknown) {
+      setRevokeError((e as Error).message?.slice(0, 100) ?? "Revoke failed");
+    } finally {
+      setRevoking(false);
+    }
+  }
+
   return (
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold font-mono">{shortenAddr(consent.requester)}</p>
           <p className="text-[11px] text-white/25">Granted {date}</p>
+          {revokeError && (
+            <p className="text-[10px] text-red-400 mt-1">{revokeError}</p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <span className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md border ${
@@ -144,6 +192,15 @@ function ConsentRow({ consent }: { consent: Consent }) {
           }`}>
             {consent.active ? "active" : "revoked"}
           </span>
+          {consent.active && (
+            <button
+              onClick={handleRevoke}
+              disabled={revoking}
+              className="text-[10px] font-mono text-red-400/50 hover:text-red-400 transition-colors disabled:opacity-40 px-1.5 py-0.5 rounded border border-red-500/20 hover:border-red-500/40"
+            >
+              {revoking ? "..." : "revoke"}
+            </button>
+          )}
           <a
             href={`${EXPLORER_BASE}/address/${consent.pubkey}?cluster=devnet`}
             target="_blank"
@@ -486,7 +543,23 @@ export default function ProfilePage() {
             </p>
             <div className="space-y-2">
               {consents.map((c) => (
-                <ConsentRow key={c.pubkey} consent={c} />
+                <ConsentRow
+                  key={c.pubkey}
+                  consent={c}
+                  userWallet={walletAddress!}
+                  onRevoked={(pubkey) => {
+                    setChainData((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            consents: prev.consents.map((x) =>
+                              x.pubkey === pubkey ? { ...x, active: false } : x
+                            ),
+                          }
+                        : prev
+                    );
+                  }}
+                />
               ))}
             </div>
           </div>

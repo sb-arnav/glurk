@@ -1,0 +1,60 @@
+# Glurk Protocol
+
+Glurk is an on-chain identity and credential protocol built on Solana.
+Apps trade data. Users own everything.
+
+## What it does
+
+Glurk lets any Solana app issue permanent, non-transferable, verifiable credentials to users.
+Every app that reads a user's credentials must contribute data back — enforced at the program level.
+Users sign explicit consent for every access grant.
+
+## Core concepts
+
+- **Credentials**: Verifiable facts about users, stored as PDAs on Solana. Each credential has an issuer, a slug (e.g. "credit-score"), a tier (platinum/gold/silver/bronze), and a score (0-100).
+- **Glurk Score**: A 0-1000 reputation number derived from all credentials across all issuers. Weighted by tier and score.
+- **Consent**: Users grant apps read access via a wallet-signed transaction. Apps must contribute a credential back atomically — no contribution, no access.
+- **Blinks**: Consent can be triggered from anywhere via Solana Actions — directly from X/Twitter, email, or any web surface.
+
+## Protocol layers
+
+1. **Credential Layer** — Issuers write verified facts. Token-2022 non-transferable SBTs + Anchor PDAs.
+2. **Access Layer** — Reciprocal read/write enforcement. `request_access` writes contribution and consent atomically.
+3. **Intelligence Layer** — Glurk Score aggregates credentials across all issuers into a single portable reputation number.
+
+## SDK
+
+```
+npm install @glurk-protocol/sdk
+```
+
+```typescript
+import { getProfile, verifyCredential, KNOWN_ISSUERS } from '@glurk-protocol/sdk';
+
+// Get a user's full identity
+const { credentials, glurkScore } = await getProfile(connection, userWallet);
+
+// Verify a specific credential
+const cred = await verifyCredential(connection, KNOWN_ISSUERS.STAQ, userWallet, 'credit-score');
+if (cred) console.log(`${cred.tier} tier, score ${cred.score}/100`);
+```
+
+## Program
+
+- **Program ID**: 5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ
+- **Network**: Solana Devnet (mainnet coming)
+- **Instructions**: register_issuer, register_credential, request_access, revoke_access
+
+## Issuers
+
+First live issuer: Staq (https://staq.slayerblade.site) — financial literacy credentials for Indian Gen Z.
+
+To become an issuer: https://glurk.slayerblade.site/issuers
+
+## Links
+
+- Website: https://glurk.slayerblade.site
+- Profile: https://glurk.slayerblade.site/profile
+- GitHub: https://github.com/sb-arnav/glurk
+- SDK: https://www.npmjs.com/package/@glurk-protocol/sdk
+- Solana Explorer: https://explorer.solana.com/address/5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ?cluster=devnet
