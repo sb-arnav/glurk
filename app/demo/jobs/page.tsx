@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -79,8 +80,13 @@ function SeedPanel({ wallet, onDone }: { wallet: string; onDone: () => void }) {
 
   if (results.length > 0) {
     return (
-      <div className="rounded-xl border border-[#5B4FE8]/20 bg-[#5B4FE8]/[0.03] p-5">
-        <p className="text-sm font-semibold text-[#5B4FE8] mb-3">Credentials issued on devnet</p>
+      <div className="rounded-[24px] border border-[#5B4FE8]/20 bg-[#5B4FE8]/[0.05] p-5 shadow-[0_20px_48px_rgba(91,79,232,0.14)]">
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm font-semibold text-[#5B4FE8]">Credentials issued on devnet</p>
+          <span className="rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-2 py-1 text-[10px] font-mono uppercase tracking-wider text-[#A79EFF]">
+            Ready
+          </span>
+        </div>
         <div className="space-y-1.5">
           {results.map((r) => (
             <div key={r.slug} className="flex items-center gap-2 text-xs text-white/50">
@@ -96,7 +102,11 @@ function SeedPanel({ wallet, onDone }: { wallet: string; onDone: () => void }) {
   }
 
   return (
-    <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-5">
+    <div className="rounded-[24px] border border-white/[0.08] bg-white/[0.04] p-5 shadow-[0_20px_48px_rgba(6,5,18,0.22)] backdrop-blur-xl">
+      <div className="mb-4 flex items-center justify-between">
+        <p className="text-[10px] font-mono tracking-widest uppercase text-white/25">Bootstrap identity</p>
+        <span className="text-[10px] font-mono uppercase tracking-wider text-white/20">4 credentials</span>
+      </div>
       <p className="font-semibold mb-1">No credentials found on devnet</p>
       <p className="text-sm text-white/35 leading-relaxed mb-5">
         This wallet has no Staq credentials on Solana devnet. Seed 4 demo credentials to see the full flow — each one mints a real Token-2022 SBT on-chain.
@@ -222,6 +232,9 @@ function JobsContent() {
       <div className="max-w-lg mx-auto px-6 py-8">
         {!callbackWallet ? (
           <div>
+            <div className="inline-flex rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-blue-300 mb-5">
+              Hiring Demo
+            </div>
             <h1 className="text-3xl font-black tracking-tight mb-3">
               Get hired with{" "}
               <span className="text-blue-400">verified skills.</span>
@@ -233,10 +246,10 @@ function JobsContent() {
 
             <button
               onClick={handleSignIn}
-              className="w-full py-4 rounded-2xl bg-white/[0.04] border border-white/[0.1] hover:bg-white/[0.07] hover:border-white/[0.15] transition-all flex items-center justify-center gap-3 group"
+              className="w-full py-4 rounded-[24px] bg-white/[0.05] border border-white/[0.1] hover:bg-white/[0.07] hover:border-white/[0.15] transition-all shadow-[0_18px_40px_rgba(6,5,18,0.22)] flex items-center justify-center gap-3 group"
             >
-              <div className="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-sm font-black">
-                G
+              <div className="w-8 h-8 rounded-xl bg-[#5B4FE8]/15 border border-[#5B4FE8]/25 flex items-center justify-center">
+                <Image src="/glurk.png" alt="Glurk" width={22} height={22} />
               </div>
               <span className="font-semibold text-[15px]">
                 Sign in with Glurk
@@ -269,7 +282,7 @@ function JobsContent() {
               {JOBS.map((job) => (
                 <div
                   key={job.id}
-                  className="p-4 rounded-xl border border-white/[0.06] bg-white/[0.02] opacity-50"
+                  className="p-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] opacity-50 shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
                 >
                   <div className="flex items-center justify-between">
                     <div>
@@ -291,7 +304,7 @@ function JobsContent() {
           </div>
         ) : loading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="text-center">
+            <div className="text-center rounded-[24px] border border-white/[0.08] bg-white/[0.04] px-8 py-10 shadow-[0_20px_48px_rgba(6,5,18,0.22)] backdrop-blur-xl">
               <svg className="animate-spin w-6 h-6 text-white/20 mx-auto mb-3" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="31.4" strokeDashoffset="10" strokeLinecap="round" />
               </svg>
@@ -301,7 +314,9 @@ function JobsContent() {
         ) : userData?.credentials.length === 0 ? (
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 flex items-center justify-center text-sm font-bold text-[#5B4FE8]">G</div>
+              <div className="w-10 h-10 rounded-full bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 flex items-center justify-center">
+                <Image src="/glurk.png" alt="Glurk" width={24} height={24} />
+              </div>
               <p className="font-mono text-sm text-white/50">{userData.wallet.slice(0, 8)}...{userData.wallet.slice(-4)}</p>
             </div>
             <SeedPanel
@@ -312,20 +327,36 @@ function JobsContent() {
         ) : (
           <div>
             {/* User header */}
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-full bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 flex items-center justify-center text-sm font-bold text-[#5B4FE8]">
-                G
+            <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.04] p-5 shadow-[0_24px_80px_rgba(5,4,18,0.32)] backdrop-blur-xl mb-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-10 h-10 rounded-full bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 flex items-center justify-center">
+                  <Image src="/glurk.png" alt="Glurk" width={24} height={24} />
+                </div>
+                <div>
+                  <p className="font-mono text-sm text-white/60">{userData?.wallet.slice(0, 8)}...{userData?.wallet.slice(-4)}</p>
+                </div>
+                <div className="ml-auto text-right">
+                  <p className="text-2xl font-black text-[#7B6FF8]">
+                    {userData?.score}
+                  </p>
+                  <p className="text-[10px] text-white/25 font-mono">
+                    GLURK SCORE
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="font-mono text-sm text-white/60">{userData?.wallet.slice(0, 8)}...{userData?.wallet.slice(-4)}</p>
-              </div>
-              <div className="ml-auto text-right">
-                <p className="text-2xl font-black text-[#7B6FF8]">
-                  {userData?.score}
-                </p>
-                <p className="text-[10px] text-white/25 font-mono">
-                  GLURK SCORE
-                </p>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-xl border border-white/[0.05] bg-black/20 px-3 py-3 text-center">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-white/20">Qualified</p>
+                  <p className="mt-1 text-sm font-semibold text-blue-300">{jobEligibility.filter((job) => job.eligible).length}</p>
+                </div>
+                <div className="rounded-xl border border-white/[0.05] bg-black/20 px-3 py-3 text-center">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-white/20">Skills</p>
+                  <p className="mt-1 text-sm font-semibold text-white/70">{userData?.credentials.length}</p>
+                </div>
+                <div className="rounded-xl border border-white/[0.05] bg-black/20 px-3 py-3 text-center">
+                  <p className="text-[10px] font-mono uppercase tracking-wider text-white/20">Applied</p>
+                  <p className="mt-1 text-sm font-semibold text-[#A79EFF]">{applied ? 1 : 0}</p>
+                </div>
               </div>
             </div>
 
@@ -334,7 +365,7 @@ function JobsContent() {
               {userData?.credentials.map((c) => (
                 <span
                   key={c.slug}
-                  className="text-[11px] font-mono px-2 py-1 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/50"
+                  className="text-[11px] font-mono px-2 py-1 rounded-lg bg-white/[0.05] border border-white/[0.08] text-white/50"
                   style={{ borderColor: TIER_COLORS[c.tier] + "20" }}
                 >
                   <span style={{ color: TIER_COLORS[c.tier] }}>✓</span>{" "}
@@ -351,10 +382,10 @@ function JobsContent() {
               {jobEligibility.map((job) => (
                 <div
                   key={job.id}
-                  className={`rounded-xl border p-4 transition-all ${
+                  className={`rounded-2xl border p-4 transition-all shadow-[0_16px_36px_rgba(6,5,18,0.2)] ${
                     job.eligible
-                      ? "border-[#5B4FE8]/[0.15] bg-[#5B4FE8]/[0.02]"
-                      : "border-white/[0.06] bg-white/[0.01] opacity-60"
+                      ? "border-[#5B4FE8]/[0.15] bg-[#5B4FE8]/[0.04]"
+                      : "border-white/[0.06] bg-white/[0.03] opacity-60"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -454,7 +485,7 @@ function JobsContent() {
             </div>
 
             {/* Data exchange proof */}
-            <div className="mt-4 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+            <div className="mt-4 rounded-[24px] border border-white/[0.06] bg-white/[0.03] p-4 shadow-[0_18px_40px_rgba(6,5,18,0.22)]">
               <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-2">
                 Data exchange
               </p>
@@ -489,7 +520,9 @@ export default function JobsPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <p className="text-white/20">Loading...</p>
+          <div className="rounded-[24px] border border-white/[0.08] bg-white/[0.04] px-8 py-6 shadow-[0_20px_48px_rgba(6,5,18,0.22)] backdrop-blur-xl">
+            <p className="text-white/20">Loading...</p>
+          </div>
         </div>
       }
     >

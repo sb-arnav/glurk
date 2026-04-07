@@ -304,7 +304,15 @@ function ConsentContent() {
               Glurk Protocol
             </p>
           </div>
-          <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6">
+          <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(5,4,18,0.4)] backdrop-blur-xl">
+            <div className="mb-5 flex items-center justify-between">
+              <span className="rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-[#A79EFF]">
+                Consent Gate
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-white/20">
+                Devnet
+              </span>
+            </div>
             <h2 className="text-lg font-bold mb-1">Connect your wallet</h2>
             <p className="text-sm text-white/35 mb-6 leading-relaxed">
               Your wallet signature is your consent. Glurk reads your on-chain
@@ -339,6 +347,20 @@ function ConsentContent() {
             <p className="text-[11px] text-white/15 mt-5 text-center">
               Connects to Solana devnet
             </p>
+            <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-xl border border-white/[0.05] bg-black/20 px-2 py-3">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/20">Read</p>
+                <p className="mt-1 text-xs text-white/50">Credentials</p>
+              </div>
+              <div className="rounded-xl border border-white/[0.05] bg-black/20 px-2 py-3">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/20">Sign</p>
+                <p className="mt-1 text-xs text-white/50">With Phantom</p>
+              </div>
+              <div className="rounded-xl border border-white/[0.05] bg-black/20 px-2 py-3">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-white/20">Write</p>
+                <p className="mt-1 text-xs text-white/50">Back to profile</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -367,17 +389,25 @@ function ConsentContent() {
       <div className="w-full max-w-[400px]">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4 text-sm font-black text-white/30">
-            G
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-4">
+            <Image src="/glurk.png" alt="Glurk" width={36} height={36} />
           </div>
           <p className="text-xs text-white/30 font-mono tracking-widest uppercase">
             Glurk Protocol
           </p>
         </div>
 
-        <div className="rounded-2xl border border-white/[0.08] bg-white/[0.02] overflow-hidden">
+        <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.04] overflow-hidden shadow-[0_24px_80px_rgba(5,4,18,0.42)] backdrop-blur-xl">
           {/* App requesting */}
-          <div className="p-6 border-b border-white/[0.06]">
+          <div className="p-6 border-b border-white/[0.06] bg-black/10">
+            <div className="mb-4 flex items-center justify-between">
+              <span className="rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-2.5 py-1 text-[10px] font-mono uppercase tracking-wider text-[#A79EFF]">
+                Permission Request
+              </span>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-white/20">
+                One-time sign
+              </span>
+            </div>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lg">
                 {appIcon}
@@ -396,7 +426,7 @@ function ConsentContent() {
             </p>
             <div className="space-y-2">
               {displayCredentials.map((c) => (
-                <div key={c.slug} className="flex items-center justify-between py-2 px-3 rounded-xl bg-white/[0.03] border border-white/[0.04]">
+                <div key={c.slug} className="flex items-center justify-between py-2 px-3 rounded-xl bg-black/20 border border-white/[0.04]">
                   <div>
                     <p className="text-sm font-semibold">{c.name}</p>
                     <p className="text-[11px] text-white/30">{c.issuer}</p>
@@ -411,7 +441,7 @@ function ConsentContent() {
                   </div>
                 </div>
               ))}
-              <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-[#5B4FE8]/[0.04] border border-[#5B4FE8]/[0.08]">
+              <div className="flex items-center justify-between py-2 px-3 rounded-xl bg-[#5B4FE8]/[0.06] border border-[#5B4FE8]/[0.12]">
                 <div>
                   <p className="text-sm font-semibold text-[#7B6FF8]">Glurk Score</p>
                   <p className="text-[11px] text-white/30">Cross-app reputation</p>
@@ -426,7 +456,7 @@ function ConsentContent() {
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-3">
               Will contribute to your profile
             </p>
-            <div className="py-2 px-3 rounded-xl bg-blue-500/[0.04] border border-blue-500/[0.08]">
+            <div className="py-2 px-3 rounded-xl bg-blue-500/[0.05] border border-blue-500/[0.12]">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold text-blue-400">{contributionName}</p>
@@ -451,7 +481,7 @@ function ConsentContent() {
               <div className="w-8 h-8 rounded-full bg-[#AB9FF2]/15 border border-[#AB9FF2]/25 flex items-center justify-center">
                 <PhantomIcon size={16} />
               </div>
-              <p className="text-[11px] font-mono text-white/40">
+              <p className="text-[11px] font-mono text-white/45">
                 {walletAddress.slice(0, 12)}...{walletAddress.slice(-6)}
               </p>
             </div>
@@ -467,7 +497,7 @@ function ConsentContent() {
           )}
 
           {/* Buttons */}
-          <div className="p-6 flex gap-3">
+          <div className="p-6 flex gap-3 bg-black/10">
             <button
               onClick={handleDeny}
               disabled={isProcessing}
