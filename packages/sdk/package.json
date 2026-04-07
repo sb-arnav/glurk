@@ -1,5 +1,5 @@
 {
-  "name": "@glurk/sdk",
+  "name": "@glurk-protocol/sdk",
   "version": "0.1.0",
   "description": "The identity protocol for Solana. Apps trade data. Users own everything.",
   "main": "dist/index.js",

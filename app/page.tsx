@@ -456,7 +456,7 @@ export default function Home() {
               Read a user&apos;s identity
             </p>
             <div className="font-mono text-sm space-y-0.5 leading-relaxed">
-              <p><span className="text-blue-400">import</span> <span className="text-white/50">{"{"}</span> <span className="text-[#A79EFF]">getProfile</span> <span className="text-white/50">{"}"}</span> <span className="text-blue-400">from</span> <span className="text-yellow-400/80">&apos;@glurk/sdk&apos;</span>;</p>
+              <p><span className="text-blue-400">import</span> <span className="text-white/50">{"{"}</span> <span className="text-[#A79EFF]">getProfile</span> <span className="text-white/50">{"}"}</span> <span className="text-blue-400">from</span> <span className="text-yellow-400/80">&apos;@glurk-protocol/sdk&apos;</span>;</p>
               <p className="mt-3 text-white/50"><span className="text-white/25">{"// "}</span>works in any Solana app</p>
               <p><span className="text-blue-400">const</span> <span className="text-white/70">profile</span> = <span className="text-blue-400">await</span> <span className="text-[#7B6FF8]">getProfile</span>(</p>
               <p className="pl-6 text-white/50">connection,</p>
@@ -473,7 +473,7 @@ export default function Home() {
             </p>
             <div className="font-mono text-sm space-y-0.5 leading-relaxed">
               <p><span className="text-blue-400">import</span> <span className="text-white/50">{"{"}</span> <span className="text-[#A79EFF]">verifyCredential</span><span className="text-white/50">,</span></p>
-              <p className="pl-6"><span className="text-[#A79EFF]">KNOWN_ISSUERS</span> <span className="text-white/50">{"}"}</span> <span className="text-blue-400">from</span> <span className="text-yellow-400/80">&apos;@glurk/sdk&apos;</span>;</p>
+              <p className="pl-6"><span className="text-[#A79EFF]">KNOWN_ISSUERS</span> <span className="text-white/50">{"}"}</span> <span className="text-blue-400">from</span> <span className="text-yellow-400/80">&apos;@glurk-protocol/sdk&apos;</span>;</p>
               <p className="mt-3"><span className="text-blue-400">const</span> <span className="text-white/70">cred</span> = <span className="text-blue-400">await</span> <span className="text-[#7B6FF8]">verifyCredential</span>(</p>
               <p className="pl-6 text-white/50">connection,</p>
               <p className="pl-6"><span className="text-[#A79EFF]">KNOWN_ISSUERS</span>.STAQ,</p>
@@ -488,7 +488,7 @@ export default function Home() {
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="rounded-2xl border border-[#5B4FE8]/[0.1] bg-[#5B4FE8]/[0.02] p-5 flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold mb-0.5">npm install @glurk/sdk</p>
+              <p className="text-sm font-semibold mb-0.5">npm install @glurk-protocol/sdk</p>
               <p className="text-xs text-white/35">TypeScript-first. Zero Anchor dependency for reads.</p>
             </div>
             <a
