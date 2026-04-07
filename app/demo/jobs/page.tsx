@@ -44,11 +44,18 @@ const TIER_COLORS: Record<string, string> = {
   bronze: "#CD7F32",
 };
 
+const CREDENTIAL_NAMES: Record<string, string> = {
+  "credit-score": "Credit Score Basics",
+  "stocks": "Stock Market Basics",
+  "upi": "UPI Payments",
+  "sell-rules": "Sell Rules",
+};
+
 function JobsContent() {
   const searchParams = useSearchParams();
   const [connected, setConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [userData, setUserData] = useState<{
-    name: string;
     score: number;
     wallet: string;
     credentials: { slug: string; name: string; tier: string; score: number; issuer: string }[];
@@ -58,15 +65,28 @@ function JobsContent() {
 
   useEffect(() => {
     const approved = searchParams.get("approved");
-    if (approved === "true") {
-      setConnected(true);
-      setUserData({
-        name: searchParams.get("name") || "User",
-        score: Number(searchParams.get("score")) || 0,
-        wallet: searchParams.get("wallet") || "",
-        credentials: JSON.parse(searchParams.get("credentials") || "[]"),
-      });
-    }
+    const wallet = searchParams.get("wallet");
+    if (approved !== "true" || !wallet) return;
+
+    setConnected(true);
+    setLoading(true);
+
+    fetch(`/api/credentials?wallet=${wallet}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const creds = (data.credentials || []).map((c: { slug: string; tier: string; score: number; issuer: string }) => ({
+          slug: c.slug,
+          name: CREDENTIAL_NAMES[c.slug] || c.slug,
+          tier: c.tier,
+          score: c.score,
+          issuer: c.issuer,
+        }));
+        setUserData({ score: data.glurkScore ?? 0, wallet, credentials: creds });
+      })
+      .catch(() => {
+        setUserData({ score: 0, wallet, credentials: [] });
+      })
+      .finally(() => setLoading(false));
   }, [searchParams]);
 
   const handleSignIn = () => {
@@ -195,18 +215,24 @@ function JobsContent() {
               </p>
             </div>
           </div>
+        ) : loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <svg className="animate-spin w-6 h-6 text-white/20 mx-auto mb-3" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" strokeDasharray="31.4" strokeDashoffset="10" strokeLinecap="round" />
+              </svg>
+              <p className="text-sm text-white/25">Reading from Solana devnet...</p>
+            </div>
+          </div>
         ) : (
           <div>
             {/* User header */}
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-sm font-bold text-blue-400">
-                {userData?.name[0]}
+                G
               </div>
               <div>
-                <p className="font-bold">{userData?.name}</p>
-                <p className="text-[11px] font-mono text-white/25">
-                  {userData?.wallet.slice(0, 8)}...{userData?.wallet.slice(-4)}
-                </p>
+                <p className="font-mono text-sm text-white/60">{userData?.wallet.slice(0, 8)}...{userData?.wallet.slice(-4)}</p>
               </div>
               <div className="ml-auto text-right">
                 <p className="text-2xl font-black text-emerald-400">
