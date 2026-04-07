@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 const PROGRAM_ID = new PublicKey('5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ');
 const RPC_URL = 'https://api.devnet.solana.com';
-const ICON_URL = 'https://glurk.slayerblade.site/glurk-icon.svg';
+const ICON_URL = 'https://glurk.vercel.app/logo.png';
 
 const BLINKS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
