@@ -35,6 +35,14 @@ export interface RegisterIssuerAccounts {
   systemProgram: PublicKey;
 }
 
+export interface RegisterCredentialAccounts {
+  issuerAuthority: PublicKey;
+  issuerAccount: PublicKey;
+  user: PublicKey;
+  credentialAccount: PublicKey;
+  systemProgram: PublicKey;
+}
+
 interface TransactionBuilder {
   transaction(): Promise<Transaction>;
   rpc(): Promise<string>;
@@ -53,6 +61,14 @@ interface GlurkProgramMethods {
   };
   registerIssuer(name: string): {
     accounts(accounts: RegisterIssuerAccounts): Pick<TransactionBuilder, 'rpc'>;
+  };
+  registerCredential(
+    slug: string,
+    tier: string,
+    score: number,
+    mintAddress: PublicKey,
+  ): {
+    accounts(accounts: RegisterCredentialAccounts): Pick<TransactionBuilder, 'rpc'>;
   };
 }
 
