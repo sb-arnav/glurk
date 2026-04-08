@@ -8,6 +8,7 @@ export const GLURK_PROGRAM_ID = new PublicKey(
 
 export const KNOWN_ISSUERS = {
   STAQ: new PublicKey('BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT'),
+  GITHUB: new PublicKey('JCpNV2vFguuNvQKcpK1Yp8xCmiyhDH7fmc5Noi25Ut4k'),
 };
 
 const DISCRIMINATORS = {

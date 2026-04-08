@@ -72,8 +72,14 @@ export default function Home() {
                 StaqJobs Demo 💼
               </Link>
               <Link
+                href="/connect/github"
+                className="px-5 py-3 rounded-xl bg-white/[0.06] border border-white/[0.1] text-white/70 font-semibold hover:bg-white/[0.08] transition-colors text-sm"
+              >
+                GitHub Credential
+              </Link>
+              <Link
                 href="/profile"
-                className="px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/70 font-semibold hover:bg-white/[0.06] transition-colors text-sm"
+                className="px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/60 font-semibold hover:bg-white/[0.06] transition-colors text-sm"
               >
                 Your Profile
               </Link>
