@@ -47,6 +47,7 @@ const SLUG_LABELS: Record<string, string> = {
   upi: "UPI Payments",
   "sell-rules": "Sell Rules",
   "github-reputation": "Developer Reputation",
+  "solana-activity": "On-Chain Activity",
 };
 
 function issuerName(addr: string) {

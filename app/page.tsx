@@ -72,10 +72,10 @@ export default function Home() {
                 StaqJobs Demo 💼
               </Link>
               <Link
-                href="/connect/github"
+                href="/connect"
                 className="px-5 py-3 rounded-xl bg-white/[0.06] border border-white/[0.1] text-white/70 font-semibold hover:bg-white/[0.08] transition-colors text-sm"
               >
-                GitHub Credential
+                Connect Sources
               </Link>
               <Link
                 href="/profile"
