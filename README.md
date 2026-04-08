@@ -28,7 +28,8 @@ The current app is more than a single consent demo:
 - `/auth/signin` supports Google sign-in before wallet linking
 - `/issuers` is the issuer-facing onboarding page
 - `/demo/lend` and `/demo/jobs` are end-user demos that drive real protocol reads and writes
-- `packages/sdk` contains the JavaScript SDK used to read credentials and derive score data
+- `/connect/github` lets developers claim a GitHub Reputation credential
+- `packages/sdk` is the TypeScript SDK (`@glurk-protocol/sdk` on npm)
 
 ---
 
@@ -38,12 +39,13 @@ The current app is more than a single consent demo:
 
 Approved issuers write verified facts about users. Each credential is a PDA keyed by `[issuer, user, slug]`. Each credential also mints a Token-2022 NonTransferable SBT to the user's wallet.
 
-**Staq** ([staq.slayerblade.site](https://staq.slayerblade.site)) is the first live issuer, a financial literacy app with real Indian Gen Z users. Credentials issued:
+Two live issuers:
 
-- `credit-score` — Credit Score Basics (Gold)
-- `stocks` — Stock Market Basics (Gold)
-- `upi` — UPI Payments (Platinum)
-- `sell-rules` — Sell Rules (Gold)
+**Staq** ([staq.slayerblade.site](https://staq.slayerblade.site)) — Financial literacy app for Indian Gen Z. Issues credentials on module completion:
+- `credit-score`, `stocks`, `upi`, `sell-rules`
+
+**GitHub Reputation** ([/connect/github](/connect/github)) — Developer credentials from public GitHub activity:
+- `github-reputation` — repos, stars, followers, contributions → tier + score
 
 ### Access Layer
 
@@ -96,14 +98,17 @@ const account = await connection.getAccountInfo(credentialPda);
 // Deserialize with the IDL to get { tier, score, timestamp }
 ```
 
-Or use the local SDK in this repo:
+Or use the published SDK:
+
+```bash
+npm install @glurk-protocol/sdk
+```
 
 ```typescript
-import { GlurkClient } from "@glurk/sdk";
+import { getProfile, verifyCredential, KNOWN_ISSUERS } from "@glurk-protocol/sdk";
 
-const client = new GlurkClient("https://api.devnet.solana.com");
-const credential = await client.getCredential(staqIssuer, userWallet, "credit-score");
-const score = await client.getGlurkScore(userWallet);
+const { credentials, glurkScore } = await getProfile(connection, userWallet);
+const cred = await verifyCredential(connection, KNOWN_ISSUERS.STAQ, userWallet, "credit-score");
 ```
 
 ---
@@ -145,10 +150,10 @@ Try it: [dial.to](https://dial.to/?action=solana-action:https://glurk.slayerblad
 
 Glurk supports a lightweight identity bridge for app onboarding:
 
-- Google auth via NextAuth
-- wallet linking persisted in Supabase
-- profile and session endpoints that resolve the current linked wallet
-- public email lookup for apps that need a user-friendly discovery path
+- Google and GitHub auth via NextAuth
+- Wallet linking persisted in Supabase (`identity_links`)
+- Auto-linking on credential issuance (issuers pass user email)
+- Profile and session endpoints that resolve the current linked wallet
 
 This is an onboarding convenience layer, not a replacement for wallet ownership. Credentials, consent records, and derived score still anchor to the wallet.
 
@@ -161,7 +166,7 @@ Both demos run a real on-chain `request_access` transaction through Phantom:
 - **StaqLend** (`/demo/lend`) — DeFi app that reduces collateral requirements based on verified financial knowledge
 - **StaqJobs** (`/demo/jobs`) — Hiring app that matches candidates to roles using verified credentials
 
-If your wallet has no Staq credentials on devnet, the demo page offers to seed four credentials with real Token-2022 SBTs and Anchor PDAs.
+Credentials come from real issuer integrations (Staq module completion, GitHub OAuth).
 
 ---
 
@@ -174,13 +179,16 @@ The full IDL is at [`app/idl.json`](app/idl.json).
 ## Environment variables
 
 ```bash
-GOOGLE_CLIENT_ID=<google oauth client id>
-GOOGLE_CLIENT_SECRET=<google oauth client secret>
-NEXT_PUBLIC_SUPABASE_URL=<supabase project url>
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<supabase anon key>
-SUPABASE_SERVICE_ROLE_KEY=<supabase service role key>
-STAQ_AUTHORITY_SECRET_KEY=<base58 keypair for the Staq issuer authority>
-REGISTER_ISSUER_SECRET=<shared secret for issuer registration endpoint>
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GITHUB_ID=
+GITHUB_SECRET=
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+STAQ_AUTHORITY_SECRET_KEY=       # Staq issuer authority (base58)
+GITHUB_ISSUER_SECRET_KEY=        # GitHub issuer authority (base58)
+REGISTER_ISSUER_SECRET=          # Shared secret for admin endpoints
 ```
 
 ---
