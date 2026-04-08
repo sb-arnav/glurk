@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getSerializedGlurkProfile, normalizeEmail } from '@/lib/glurk-profile';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,7 +22,8 @@ function getSupabase() {
  * the user's wallet address.
  */
 export async function GET(req: NextRequest) {
-  const email = req.nextUrl.searchParams.get('email');
+  const rawEmail = req.nextUrl.searchParams.get('email');
+  const email = rawEmail ? normalizeEmail(rawEmail) : null;
   if (!email) {
     return NextResponse.json({ error: 'email param required' }, { status: 400 });
   }
@@ -36,18 +38,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'No wallet linked to this email' }, { status: 404 });
   }
 
-  // Fetch credentials from the on-chain API
-  const credUrl = new URL('/api/credentials', req.url);
-  credUrl.searchParams.set('wallet', data.wallet_address);
-
-  const credRes = await fetch(credUrl.toString());
-  const credData = await credRes.json();
+  const profile = await getSerializedGlurkProfile(data.wallet_address);
 
   return NextResponse.json({
     email,
     wallet: data.wallet_address,
-    credentials: credData.credentials ?? [],
-    glurkScore: credData.glurkScore ?? 0,
-    consents: credData.consents ?? [],
+    credentials: profile.credentials,
+    glurkScore: profile.glurkScore,
+    consents: profile.consents,
   });
 }

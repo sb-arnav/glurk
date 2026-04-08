@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 import { PublicKey } from '@solana/web3.js';
+import { normalizeEmail } from '@/lib/glurk-profile';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
   }
 
+  const email = normalizeEmail(session.user.email);
+
   const { wallet } = await req.json();
   if (!wallet) {
     return NextResponse.json({ error: 'wallet required' }, { status: 400 });
@@ -32,11 +35,11 @@ export async function POST(req: NextRequest) {
 
   const { error } = await getSupabase()
     .from('identity_links')
-    .upsert({ email: session.user.email, wallet_address: wallet }, { onConflict: 'email' });
+    .upsert({ email, wallet_address: wallet }, { onConflict: 'email' });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ ok: true, email: session.user.email, wallet });
+  return NextResponse.json({ ok: true, email, wallet });
 }
