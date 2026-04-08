@@ -524,7 +524,7 @@ export default function Home() {
         <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-8">
           Live proof
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <a
             href={EXPLORER_URL}
             target="_blank"
@@ -550,16 +550,31 @@ export default function Home() {
             className="group rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 hover:border-white/[0.12] transition-colors shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
           >
             <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-3">
-              Live Issuer
+              Issuer #1
             </p>
             <p className="text-[15px] font-bold">Staq</p>
             <p className="text-sm text-white/35 mt-1">
-              Financial literacy app for Indian Gen Z. Real users, real on-chain credentials.
+              Financial literacy credentials for Indian Gen Z. Real users, real on-chain.
             </p>
             <p className="text-[11px] text-white/20 mt-2 group-hover:text-white/40 transition-colors">
               staq.slayerblade.site ↗
             </p>
           </a>
+          <Link
+            href="/connect/github"
+            className="group rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 hover:border-white/[0.12] transition-colors shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
+          >
+            <p className="text-[10px] font-mono tracking-widest uppercase text-white/20 mb-3">
+              Issuer #2
+            </p>
+            <p className="text-[15px] font-bold">GitHub Reputation</p>
+            <p className="text-sm text-white/35 mt-1">
+              Developer credentials from public GitHub activity. Repos, stars, contributions.
+            </p>
+            <p className="text-[11px] text-white/20 mt-2 group-hover:text-white/40 transition-colors">
+              Connect GitHub →
+            </p>
+          </Link>
           <Link
             href="/demo/lend"
             className="group rounded-2xl border border-[#5B4FE8]/[0.12] bg-[#5B4FE8]/[0.05] p-5 hover:border-[#5B4FE8]/[0.25] transition-colors shadow-[0_18px_40px_rgba(91,79,232,0.12)]"
