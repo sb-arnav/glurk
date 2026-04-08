@@ -1,4 +1,4 @@
-# @glurk/sdk
+# @glurk-protocol/sdk
 
 The identity protocol for the internet. Apps trade data. Users own everything. Built on Solana.
 
@@ -13,51 +13,46 @@ Glurk lets any Solana app issue **permanent, non-transferable, verifiable creden
 
 ## Quick Start
 
-### Verify a credential (3 lines)
+### Verify a credential
 
-```js
-import { Connection } from '@solana/web3.js';
-import { Glurk } from '@glurk/sdk';
+```typescript
+import { verifyCredential, KNOWN_ISSUERS } from '@glurk-protocol/sdk';
 
-const connection = new Connection('https://api.mainnet-beta.solana.com');
-const glurk = new Glurk(connection);
-const credential = await glurk.verify(issuer, userWallet, 'credit-score');
+const cred = await verifyCredential(
+  'https://api.devnet.solana.com',
+  KNOWN_ISSUERS.STAQ,
+  userWallet,
+  'credit-score',
+);
 
-if (credential) {
-  console.log(`Tier: ${credential.tier}, Score: ${credential.score}`);
-  // This user has a verified financial literacy credential
+if (cred) {
+  console.log(`${cred.tier} tier, score ${cred.score}/100`);
 }
 ```
 
-### Get a user's Glurk Score
+### Get a user's full profile
 
-```js
-import { getGlurkScore } from '@glurk/sdk';
+```typescript
+import { getProfile } from '@glurk-protocol/sdk';
 
-const score = await getGlurkScore(connection, issuer, userWallet);
-// 0-1000 reputation score derived from all credentials
-// Higher tier + higher module score = higher Glurk Score
-
-if (score > 500) {
-  // Offer better rates, lower collateral, priority access
-}
+const { credentials, glurkScore, consents } = await getProfile(
+  'https://api.devnet.solana.com',
+  userWallet,
+);
+// glurkScore: 0-1000 reputation derived from all credentials
+// credentials: every verified skill across all issuers
 ```
 
-### Full client usage
+### GlurkClient
 
-```js
-import { Glurk, KNOWN_ISSUERS } from '@glurk/sdk';
+```typescript
+import { GlurkClient, KNOWN_ISSUERS } from '@glurk-protocol/sdk';
 
-const glurk = new Glurk(connection);
+const client = new GlurkClient('https://api.devnet.solana.com');
 
-// Verify a specific credential
-const cred = await glurk.verify(KNOWN_ISSUERS.STAQ, userWallet, 'stocks');
-
-// Get all credentials from Staq
-const allCreds = await glurk.getAllCredentials(KNOWN_ISSUERS.STAQ, userWallet);
-
-// Check if an issuer is registered
-const issuer = await glurk.checkIssuer(someIssuerPubkey);
+const cred = await client.verifyCredential(KNOWN_ISSUERS.STAQ, userWallet, 'stocks');
+const score = await client.getScore(userWallet);
+const issuer = await client.checkIssuer(someIssuerPubkey);
 ```
 
 ## Use Cases
