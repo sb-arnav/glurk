@@ -36,6 +36,27 @@ const TIER_BG: Record<string, string> = {
   bronze: "bg-orange-900/[0.05] border-orange-800/[0.1]",
 };
 
+const ISSUER_NAMES: Record<string, string> = {
+  BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT: "Staq",
+  JCpNV2vFguuNvQKcpK1Yp8xCmiyhDH7fmc5Noi25Ut4k: "GitHub",
+};
+
+const SLUG_LABELS: Record<string, string> = {
+  "credit-score": "Credit Score Basics",
+  stocks: "Stock Market Basics",
+  upi: "UPI Payments",
+  "sell-rules": "Sell Rules",
+  "github-reputation": "Developer Reputation",
+};
+
+function issuerName(addr: string) {
+  return ISSUER_NAMES[addr] || shortenAddr(addr, 6, 4);
+}
+
+function credLabel(slug: string) {
+  return SLUG_LABELS[slug] || slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 // Shorten an address/pubkey for display
 function shortenAddr(addr: string, pre = 8, suf = 6) {
   if (addr.length <= pre + suf + 3) return addr;
@@ -104,9 +125,9 @@ function CredentialRow({ cred, hasSas }: { cred: Credential; hasSas?: boolean })
       <div className="flex items-center gap-3">
         <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: TIER_COLORS[cred.tier] || TIER_COLORS.bronze }} />
         <div>
-          <p className="text-sm font-semibold">{cred.slug}</p>
+          <p className="text-sm font-semibold">{credLabel(cred.slug)}</p>
           <p className="text-[11px] text-white/25">
-            {shortenAddr(cred.issuer, 6, 4)} · {date}
+            {issuerName(cred.issuer)} · {date}
           </p>
         </div>
       </div>

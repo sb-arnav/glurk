@@ -47,7 +47,9 @@ if (cred) console.log(`${cred.tier} tier, score ${cred.score}/100`);
 
 ## Issuers
 
-First live issuer: Staq (https://staq.slayerblade.site) — financial literacy credentials for Indian Gen Z.
+Live issuers:
+1. Staq (https://staq.slayerblade.site) — financial literacy credentials for Indian Gen Z
+2. GitHub Reputation (https://glurk.slayerblade.site/connect/github) — developer credentials from public GitHub activity
 
 To become an issuer: https://glurk.slayerblade.site/issuers
 
