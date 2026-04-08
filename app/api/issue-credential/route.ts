@@ -26,6 +26,7 @@ import {
   GLURK_SYSTEM_PROGRAM_ID,
   GLURK_PROGRAM_ID,
 } from '@/lib/glurk-program';
+import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +44,7 @@ export const dynamic = 'force-dynamic';
  *   slug: string,      — credential identifier (e.g. "credit-score")
  *   tier: string,      — "platinum" | "gold" | "silver" | "bronze"
  *   score: number,     — 0-100 module/skill score
+ *   email?: string,    — optional: auto-links email → wallet in identity_links
  * }
  *
  * Returns: { ok, slug, mintAddress, txSig, credentialPda }
@@ -57,7 +59,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { wallet, slug, tier, score } = await req.json();
+    const { wallet, slug, tier, score, email } = await req.json();
 
     if (!wallet || !slug || !tier || score === undefined) {
       return NextResponse.json(
@@ -150,6 +152,22 @@ export async function POST(req: NextRequest) {
         systemProgram: GLURK_SYSTEM_PROGRAM_ID,
       })
       .rpc();
+
+    // Auto-link email → wallet if provided
+    if (email && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+      );
+      await supabase
+        .from('identity_links')
+        .upsert(
+          { email: email.toLowerCase().trim(), wallet_address: wallet },
+          { onConflict: 'email' },
+        )
+        .then(() => {})
+        .catch((e: Error) => console.error('identity link failed:', e.message));
+    }
 
     return NextResponse.json({
       ok: true,
