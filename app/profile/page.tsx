@@ -245,9 +245,9 @@ export default function ProfilePage() {
   const [sasAttestations, setSasAttestations] = useState<SasAttestation[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [linkStatus, setLinkStatus] = useState<"idle" | "linking" | "linked" | "error">("idle");
-  const [googleLinked, setGoogleLinked] = useState(false);
+  const [emailLinked, setGoogleLinked] = useState(false);
 
-  // If Google session exists and wallet is linked, auto-load credentials
+  // If session exists (Google or GitHub) and wallet is linked, auto-load credentials
   useEffect(() => {
     if (sessionStatus !== "authenticated" || walletAddress) return;
     fetch("/api/auth/me")
@@ -471,9 +471,9 @@ export default function ProfilePage() {
               Live Identity
             </span>
             <div className="flex items-center gap-2">
-              {googleLinked && (
+              {emailLinked && (
                 <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-white/30">
-                  via Google
+                  via email
                 </span>
               )}
               <span className="text-[10px] font-mono uppercase tracking-wider text-white/20">
