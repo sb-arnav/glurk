@@ -159,14 +159,13 @@ export async function POST(req: NextRequest) {
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.SUPABASE_SERVICE_ROLE_KEY,
       );
-      await supabase
+      const { error: linkError } = await supabase
         .from('identity_links')
         .upsert(
           { email: email.toLowerCase().trim(), wallet_address: wallet },
           { onConflict: 'email' },
-        )
-        .then(() => {})
-        .catch((e: Error) => console.error('identity link failed:', e.message));
+        );
+      if (linkError) console.error('identity link failed:', linkError.message);
     }
 
     return NextResponse.json({
