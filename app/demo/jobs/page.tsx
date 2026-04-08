@@ -50,6 +50,7 @@ const CREDENTIAL_NAMES: Record<string, string> = {
   "stocks": "Stock Market Basics",
   "upi": "UPI Payments",
   "sell-rules": "Sell Rules",
+  "github-reputation": "Developer Reputation",
 };
 
 function JobsContent() {

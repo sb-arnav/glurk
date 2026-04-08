@@ -12,10 +12,11 @@ const EXPLORER_BASE = "https://explorer.solana.com/tx";
 // Credential slugs Staq has issued — used to build the "will read" list
 // In production, fetched from /api/credentials for the connected wallet
 const STAQ_CREDENTIAL_META: Record<string, { name: string; tier: string; issuer: string }> = {
-  "credit-score":  { name: "Credit Score Basics",  tier: "gold",     issuer: "Staq" },
-  "stocks":        { name: "Stock Market Basics",   tier: "gold",     issuer: "Staq" },
-  "upi":           { name: "UPI Payments",          tier: "platinum", issuer: "Staq" },
-  "sell-rules":    { name: "Sell Rules",            tier: "gold",     issuer: "Staq" },
+  "credit-score":       { name: "Credit Score Basics",  tier: "gold",     issuer: "Staq" },
+  "stocks":             { name: "Stock Market Basics",  tier: "gold",     issuer: "Staq" },
+  "upi":                { name: "UPI Payments",         tier: "platinum", issuer: "Staq" },
+  "sell-rules":         { name: "Sell Rules",            tier: "gold",     issuer: "Staq" },
+  "github-reputation":  { name: "Developer Reputation", tier: "silver",   issuer: "GitHub" },
 };
 
 const TIER_COLORS: Record<string, string> = {
