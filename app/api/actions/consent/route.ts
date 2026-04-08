@@ -1,19 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { PublicKey } from '@solana/web3.js';
 import {
-  Connection,
-  PublicKey,
-  SystemProgram,
-  Keypair,
-  Transaction,
-} from '@solana/web3.js';
-import * as anchor from '@coral-xyz/anchor';
-import fs from 'fs';
-import path from 'path';
+  createSigningGlurkProgram,
+  findConsentPda,
+  findContributionPda,
+  findIssuerPda,
+  getAuthorityKeypair,
+  getGlurkConnection,
+  GLURK_SYSTEM_PROGRAM_ID,
+} from '@/lib/glurk-program';
 
 export const dynamic = 'force-dynamic';
 
-const PROGRAM_ID = new PublicKey('5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ');
-const RPC_URL = 'https://api.devnet.solana.com';
 const ICON_URL = 'https://glurk.slayerblade.site/logo.png';
 
 const BLINKS_HEADERS: Record<string, string> = {
@@ -24,36 +22,10 @@ const BLINKS_HEADERS: Record<string, string> = {
   'X-Blockchain-Ids': 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1',
 };
 
-function decodeBase58(str: string): Uint8Array {
-  const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-  let num = BigInt(0);
-  for (const char of str) {
-    num = num * BigInt(58) + BigInt(chars.indexOf(char));
-  }
-  const bytes: number[] = [];
-  while (num > BigInt(0)) {
-    bytes.unshift(Number(num % BigInt(256)));
-    num = num / BigInt(256);
-  }
-  for (const char of str) {
-    if (char === '1') bytes.unshift(0);
-    else break;
-  }
-  return Uint8Array.from(bytes);
-}
-
-function getAuthorityKeypair(): Keypair {
-  const secretKey = process.env.STAQ_AUTHORITY_SECRET_KEY;
-  if (!secretKey) throw new Error('STAQ_AUTHORITY_SECRET_KEY not set');
-  return Keypair.fromSecretKey(decodeBase58(secretKey));
-}
-
-// ── OPTIONS (CORS preflight) ──────────────────────────────────────────
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: BLINKS_HEADERS });
 }
 
-// ── GET: Return action metadata ───────────────────────────────────────
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
 
@@ -84,7 +56,6 @@ export async function GET(req: NextRequest) {
   return NextResponse.json(payload, { headers: BLINKS_HEADERS });
 }
 
-// ── POST: Build partial tx for Phantom to co-sign ─────────────────────
 export async function POST(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -103,8 +74,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const connection = new Connection(RPC_URL, 'confirmed');
+    const connection = getGlurkConnection();
     const authority = getAuthorityKeypair();
+    const program = createSigningGlurkProgram(connection, authority);
 
     let user: PublicKey;
     try {
@@ -116,28 +88,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Derive PDAs
-    const [issuerPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from('issuer'), authority.publicKey.toBuffer()],
-      PROGRAM_ID,
-    );
-    const [contributionPda] = PublicKey.findProgramAddressSync(
-      [
-        Buffer.from('credential'),
-        authority.publicKey.toBuffer(),
-        user.toBuffer(),
-        Buffer.from(contributeSlug),
-      ],
-      PROGRAM_ID,
-    );
-    const [consentPda] = PublicKey.findProgramAddressSync(
-      [Buffer.from('consent'), user.toBuffer(), authority.publicKey.toBuffer()],
-      PROGRAM_ID,
-    );
+    const [issuerPda] = findIssuerPda(authority.publicKey);
+    const [contributionPda] = findContributionPda(authority.publicKey, user, contributeSlug);
+    const [consentPda] = findConsentPda(user, authority.publicKey);
 
-    // Check if consent already exists
-    const existingConsent = await connection.getAccountInfo(consentPda);
-    const existingContribution = await connection.getAccountInfo(contributionPda);
+    const [existingConsent, existingContribution] = await Promise.all([
+      connection.getAccountInfo(consentPda),
+      connection.getAccountInfo(contributionPda),
+    ]);
 
     if (existingConsent && existingContribution) {
       return NextResponse.json(
@@ -146,22 +104,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Load IDL and build program
-    const idlPath = path.join(process.cwd(), 'app', 'idl.json');
-    const idl = JSON.parse(fs.readFileSync(idlPath, 'utf8'));
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const wallet: any = {
-      publicKey: authority.publicKey,
-      signTransaction: async (tx: Transaction) => tx,
-      signAllTransactions: async (txs: Transaction[]) => txs,
-    };
-    const provider = new anchor.AnchorProvider(connection, wallet, { commitment: 'confirmed' });
-    const program = new anchor.Program(idl, provider);
-
-    // Build the transaction
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tx = await (program.methods as any)
+    const tx = await program.methods
       .requestAccess(
         contributeSlug,
         contributeTier,
@@ -169,24 +112,19 @@ export async function POST(req: NextRequest) {
       )
       .accounts({
         requesterAuthority: authority.publicKey,
-        user: user,
+        user,
         requesterIssuer: issuerPda,
         contributionAccount: contributionPda,
         consentAccount: consentPda,
-        systemProgram: SystemProgram.programId,
+        systemProgram: GLURK_SYSTEM_PROGRAM_ID,
       })
       .transaction();
 
-    // Set blockhash and fee payer
-    const { blockhash, lastValidBlockHeight } =
-      await connection.getLatestBlockhash('confirmed');
+    const { blockhash } = await connection.getLatestBlockhash('confirmed');
     tx.recentBlockhash = blockhash;
     tx.feePayer = authority.publicKey;
-
-    // Partial sign with authority -- user (Phantom) must still sign
     tx.partialSign(authority);
 
-    // Serialize allowing missing user signature
     const serialized = tx.serialize({ requireAllSignatures: false, verifySignatures: false });
 
     return NextResponse.json(
