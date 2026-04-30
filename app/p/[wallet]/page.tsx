@@ -8,6 +8,7 @@ import {
   getSerializedGlurkProfile,
   type SerializedCredential,
 } from "@/lib/glurk-profile";
+import EmbedSnippet from "@/app/components/EmbedSnippet";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -304,6 +305,8 @@ export default async function PublicProfilePage({ params }: RouteProps) {
           )}
         </section>
 
+        <EmbedSnippet wallet={wallet} />
+
         <section className="mt-10 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-5">
           <p className="text-[10px] font-mono tracking-widest uppercase text-white/25 mb-2">
             What is this?
@@ -325,6 +328,12 @@ export default async function PublicProfilePage({ params }: RouteProps) {
               className="text-[11px] font-mono text-white/40 hover:text-white transition-colors"
             >
               become an issuer →
+            </Link>
+            <Link
+              href="/manifesto"
+              className="text-[11px] font-mono text-white/40 hover:text-white transition-colors"
+            >
+              read the manifesto →
             </Link>
           </div>
         </section>

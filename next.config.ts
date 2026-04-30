@@ -19,6 +19,14 @@ const nextConfig: NextConfig = {
           { key: 'Access-Control-Allow-Origin', value: '*' },
         ],
       },
+      {
+        // Embed widget must be iframable from any origin.
+        source: '/embed/:path*',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors *" },
+          { key: 'X-Frame-Options', value: 'ALLOWALL' },
+        ],
+      },
     ];
   },
 };
