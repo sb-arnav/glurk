@@ -187,6 +187,86 @@ body, _ := io.ReadAll(resp.Body)`}
 
           <div className="mt-4 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-5">
             <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-3">
+              Errors & response headers
+            </p>
+            <p className="text-[12px] text-white/55 leading-relaxed mb-3">
+              All errors return <code className="font-mono text-white/75">{`{ "ok": false, "error": "<message>" }`}</code>{" "}
+              with the appropriate HTTP status. Handle these in your integration:
+            </p>
+            <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-black/40 mb-4">
+              <table className="w-full text-[11px] font-mono">
+                <thead>
+                  <tr className="border-b border-white/[0.06] text-white/40">
+                    <th className="text-left px-3 py-2">Status</th>
+                    <th className="text-left px-3 py-2">When</th>
+                    <th className="text-left px-3 py-2 hidden sm:table-cell">What to do</th>
+                  </tr>
+                </thead>
+                <tbody className="text-white/75">
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-yellow-300">400</td>
+                    <td className="px-3 py-2">missing or malformed wallet/email</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">validate before calling — don&apos;t retry</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-red-300">401</td>
+                    <td className="px-3 py-2">invalid / deactivated API key</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">check <Link href="/dashboard/keys" className="underline decoration-dotted hover:text-white/80">/dashboard/keys</Link> — don&apos;t retry</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-yellow-300">404</td>
+                    <td className="px-3 py-2">no wallet linked to that email</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">treat as &quot;no profile&quot; — fall back gracefully</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-orange-300">429</td>
+                    <td className="px-3 py-2">monthly quota exceeded</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">back off until reset, or upgrade tier</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 text-red-400">500</td>
+                    <td className="px-3 py-2">RPC or backend issue</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">retry with backoff (rare — chain reads sometimes blip)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[12px] text-white/55 leading-relaxed mb-3">
+              Every response (success and error) sets these headers — read them
+              client-side to pace requests and show usage in your own UI:
+            </p>
+            <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-black/40">
+              <table className="w-full text-[11px] font-mono">
+                <thead>
+                  <tr className="border-b border-white/[0.06] text-white/40">
+                    <th className="text-left px-3 py-2">Header</th>
+                    <th className="text-left px-3 py-2">Meaning</th>
+                  </tr>
+                </thead>
+                <tbody className="text-white/75">
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-[#A79EFF]">X-Glurk-Tier</td>
+                    <td className="px-3 py-2 text-white/55">anonymous · free · pro · enterprise</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-[#A79EFF]">X-Glurk-Quota-Total</td>
+                    <td className="px-3 py-2 text-white/55">monthly call cap for this tier</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-[#A79EFF]">X-Glurk-Quota-Remaining</td>
+                    <td className="px-3 py-2 text-white/55">calls left this month (or <code className="text-white/40">unlimited</code> for anonymous)</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 text-[#A79EFF]">X-Glurk-Test-Mode</td>
+                    <td className="px-3 py-2 text-white/55">set to <code className="text-white/40">true</code> on <code className="text-white/40">test:*</code> sentinel responses</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-5">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-3">
               Response shape
             </p>
             <pre className="overflow-x-auto rounded-xl border border-white/[0.06] bg-black/40 p-4 text-[11px] text-white/75 leading-relaxed font-mono">
