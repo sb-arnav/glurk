@@ -46,43 +46,44 @@ export default function Home() {
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-3 py-1 text-[11px] font-mono tracking-widest uppercase text-[#A79EFF] mb-6">
               <span className="h-2 w-2 rounded-full bg-[#7B6FF8]" />
-              The trust layer · Solana
+              Empires fall · Protocols don&apos;t
             </p>
             <h1 className="text-5xl font-black tracking-tight leading-[1.02] mb-6 sm:text-6xl">
-              Identity is the last piece of internet infrastructure that hasn&apos;t been{" "}
-              <span className="text-[#7B6FF8]">protocolized.</span>
+              Identity is unbundling.{" "}
+              <span className="text-[#7B6FF8]">We&apos;re building what comes next.</span>
             </h1>
             <p className="text-lg text-white/50 leading-relaxed max-w-2xl mb-10">
-              Glurk is the open protocol where verified credentials about a person
-              (skills, scores, attestations, reputation) become portable, reciprocal,
-              and owned by the wallet they&apos;re about. Every app reads from one
-              shared register instead of rebuilding identity from scratch. Plumbing
-              for everything humans — and eventually AI agents — do online.
+              CIBIL holds your credit. LinkedIn holds your work. Plaid holds your bank.
+              Each empire owns a slice of you and rents it back to every app that needs
+              to know who you are. Glurk is the protocol underneath — verified
+              credentials owned by the wallet they&apos;re about, written by anyone
+              trusted to attest, read by every app that has to make a decision about a
+              person (or, soon, an AI agent acting for one).
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 href="/for-fintechs"
                 className="px-5 py-3 rounded-xl bg-[#5B4FE8] text-white font-bold hover:bg-[#6B5FF8] shadow-[0_16px_40px_rgba(91,79,232,0.28)] transition-colors text-sm"
               >
-                Underwrite Gen Z →
+                See it work →
+              </Link>
+              <Link
+                href="/manifesto"
+                className="px-5 py-3 rounded-xl bg-white/[0.06] border border-white/[0.1] text-white/80 font-semibold hover:bg-white/[0.1] transition-colors text-sm"
+              >
+                10 use cases →
               </Link>
               <Link
                 href="/issuers/register"
-                className="px-5 py-3 rounded-xl bg-white/[0.06] border border-white/[0.1] text-white/80 font-semibold hover:bg-white/[0.1] transition-colors text-sm"
+                className="px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/60 font-semibold hover:bg-white/[0.06] transition-colors text-sm"
               >
                 Become an issuer
               </Link>
               <Link
                 href="/docs"
-                className="px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/60 font-semibold hover:bg-white/[0.06] transition-colors text-sm"
-              >
-                Read the docs
-              </Link>
-              <Link
-                href="/manifesto"
                 className="px-5 py-3 rounded-xl text-white/45 font-semibold hover:text-white/80 transition-colors text-sm"
               >
-                Manifesto →
+                Docs →
               </Link>
             </div>
             <div className="mt-5">
