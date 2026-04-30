@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
+import UnderwritingDemo from "@/app/components/UnderwritingDemo";
+
 export const metadata: Metadata = {
   title: "Glurk for Indian Fintechs · Underwrite Gen Z without CIBIL",
   description:
@@ -137,7 +139,19 @@ if (isCreditworthy) {
 
         <section>
           <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-3">
-            03 · What credentials look like
+            03 · See the decision live
+          </p>
+          <p className="text-white/55 text-[14px] leading-relaxed mb-4">
+            Same call, same data, same result your backend would compute. Below runs
+            against the production API right now — paste any wallet, watch the
+            approve/fall-back decision land in &lt;100ms.
+          </p>
+          <UnderwritingDemo />
+        </section>
+
+        <section>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-3">
+            04 · What credentials look like
           </p>
           <div className="rounded-[24px] border border-white/[0.08] bg-white/[0.02] p-6">
             <p className="text-[12px] text-white/55 leading-relaxed mb-4">
@@ -184,7 +198,7 @@ if (isCreditworthy) {
 
         <section>
           <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-3">
-            04 · What this unlocks for your product
+            05 · What this unlocks for your product
           </p>
           <div className="space-y-3">
             {[
