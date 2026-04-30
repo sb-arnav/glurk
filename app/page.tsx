@@ -91,6 +91,15 @@ export default function Home() {
             <div className="mt-6">
               <WalletLookup />
             </div>
+            <div className="mt-5">
+              <Link
+                href="/for-fintechs"
+                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#5B4FE8]/30 bg-[#5B4FE8]/[0.08] hover:bg-[#5B4FE8]/[0.15] transition-colors text-[12px] text-white/75"
+              >
+                <span className="font-bold">Building a fintech in India?</span>
+                <span className="text-[#A79EFF]">Underwrite Gen Z without CIBIL →</span>
+              </Link>
+            </div>
           </div>
 
           <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(5,4,18,0.45)] backdrop-blur-xl">
@@ -673,6 +682,9 @@ export default function Home() {
             </Link>
             <Link href="/pricing" className="hover:text-white/40 transition-colors">
               Pricing
+            </Link>
+            <Link href="/for-fintechs" className="hover:text-white/40 transition-colors">
+              For Fintechs
             </Link>
             <a
               href="https://github.com/sb-arnav/glurk"
