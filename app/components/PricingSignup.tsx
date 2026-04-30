@@ -6,9 +6,10 @@ type Status =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "success"; key: string }
+  | { kind: "redirecting" }
   | { kind: "error"; message: string };
 
-export default function PricingSignup({ tier }: { tier: "free" }) {
+export default function PricingSignup({ tier }: { tier: "free" | "pro" }) {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [email, setEmail] = useState("");
   const [appName, setAppName] = useState("");
@@ -20,6 +21,25 @@ export default function PricingSignup({ tier }: { tier: "free" }) {
     if (!email.trim()) return;
     setStatus({ kind: "submitting" });
     try {
+      if (tier === "pro") {
+        const res = await fetch("/api/paddle/checkout-create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email.trim(),
+            tier: "pro",
+            appName: appName.trim() || undefined,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.checkoutUrl) {
+          throw new Error(data.error || "Failed to create checkout");
+        }
+        setStatus({ kind: "redirecting" });
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+
       const res = await fetch("/api/keys/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,7 +88,7 @@ export default function PricingSignup({ tier }: { tier: "free" }) {
         onClick={() => setShowForm(true)}
         className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl text-sm font-bold transition-colors bg-[#5B4FE8] hover:bg-[#6B5FF8] text-white"
       >
-        Get free API key →
+        {tier === "pro" ? "Subscribe — $49/mo" : "Get free API key"} →
       </button>
     );
   }
@@ -94,10 +114,18 @@ export default function PricingSignup({ tier }: { tier: "free" }) {
       />
       <button
         type="submit"
-        disabled={status.kind === "submitting" || !email.trim()}
+        disabled={status.kind === "submitting" || status.kind === "redirecting" || !email.trim()}
         className="w-full inline-flex items-center justify-center px-3 py-2 rounded-xl text-[12px] font-bold transition-colors bg-[#5B4FE8] hover:bg-[#6B5FF8] disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {status.kind === "submitting" ? "Creating…" : "Create key"}
+        {status.kind === "redirecting"
+          ? "Opening checkout…"
+          : status.kind === "submitting"
+            ? tier === "pro"
+              ? "Preparing checkout…"
+              : "Creating…"
+            : tier === "pro"
+              ? "Continue to Paddle →"
+              : "Create key"}
       </button>
       {status.kind === "error" && (
         <p className="text-[11px] text-red-300/80 font-mono">{status.message}</p>

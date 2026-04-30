@@ -50,8 +50,8 @@ const TIERS = [
       "Webhook delivery (coming)",
       "Usage analytics dashboard",
     ],
-    cta: { label: "Talk to founder", href: "mailto:founder@glurk.protocol?subject=Glurk Pro tier" },
-    accent: "neutral" as const,
+    cta: { kind: "signup" as const, tier: "pro" as const },
+    accent: "primary" as const,
   },
   {
     name: "Enterprise",
