@@ -26,12 +26,34 @@ type Status =
   | { kind: "success"; pda: string; txSig: string; userWallet: string }
   | { kind: "error"; message: string };
 
-export default function IssueCredentialPanel({ authority }: { authority: string }) {
+interface TemplateOption {
+  slug: string;
+  name: string;
+  default_tier: Tier;
+  default_score: number;
+}
+
+export default function IssueCredentialPanel({
+  authority,
+  templates = [],
+}: {
+  authority: string;
+  templates?: TemplateOption[];
+}) {
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [userWallet, setUserWallet] = useState("");
   const [slug, setSlug] = useState("");
   const [tier, setTier] = useState<Tier>("gold");
   const [score, setScore] = useState(80);
+
+  function applyTemplate(slugChoice: string) {
+    if (!slugChoice) return;
+    const t = templates.find((x) => x.slug === slugChoice);
+    if (!t) return;
+    setSlug(t.slug);
+    setTier(t.default_tier);
+    setScore(t.default_score);
+  }
 
   // Auto-reconnect if Phantom is already linked.
   useEffect(() => {
@@ -230,6 +252,29 @@ export default function IssueCredentialPanel({ authority }: { authority: string 
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {templates.length > 0 && (
+              <div className="sm:col-span-3">
+                <label className="text-[10px] font-mono uppercase tracking-widest text-white/35">
+                  From your catalog
+                </label>
+                <select
+                  value=""
+                  onChange={(e) => applyTemplate(e.target.value)}
+                  disabled={status.kind === "submitting"}
+                  className="mt-2 w-full rounded-xl border border-[#5B4FE8]/30 bg-[#5B4FE8]/[0.06] px-4 py-3 text-sm text-white focus:outline-none focus:border-[#5B4FE8]/60 disabled:opacity-50"
+                >
+                  <option value="">— pick a credential to autofill —</option>
+                  {templates.map((t) => (
+                    <option key={t.slug} value={t.slug}>
+                      {t.name} · {t.default_tier} · {t.default_score}/100
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[10px] text-white/30 mt-1">
+                  Or fill the fields manually below.
+                </p>
+              </div>
+            )}
             <div className="sm:col-span-3">
               <label className="text-[10px] font-mono uppercase tracking-widest text-white/35">
                 Credential slug

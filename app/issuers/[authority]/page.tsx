@@ -7,6 +7,8 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { getIssuer } from "@/lib/issuers";
 import { GLURK_PROGRAM_ID, GLURK_RPC_URL } from "@/lib/glurk-program";
 import IssueCredentialPanel from "@/app/components/IssueCredentialPanel";
+import IssuerTemplateManager, { type Template } from "@/app/components/IssuerTemplateManager";
+import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -120,6 +122,24 @@ const TIER_COLORS: Record<string, string> = {
   founding: "#5B4FE8",
 };
 
+async function fetchTemplates(authority: string): Promise<Template[]> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) return [];
+    const supabase = createClient(url, key, { auth: { persistSession: false } });
+    const { data } = await supabase
+      .from("issuer_credential_templates")
+      .select("slug, name, description, default_tier, default_score, display_order, active, created_at")
+      .eq("issuer_authority", authority)
+      .eq("active", true)
+      .order("display_order", { ascending: true });
+    return (data ?? []) as Template[];
+  } catch {
+    return [];
+  }
+}
+
 export default async function IssuerDashboardPage({ params }: RouteProps) {
   const { authority } = await params;
   if (!isValidPubkey(authority)) notFound();
@@ -133,6 +153,8 @@ export default async function IssuerDashboardPage({ params }: RouteProps) {
   } catch {
     credentials = [];
   }
+
+  const templates = await fetchTemplates(authority);
 
   const uniqueUsers = new Set(credentials.map((c) => c.user)).size;
   const oldestClaim = credentials.at(-1)?.timestamp ?? issuer.registeredAt;
@@ -303,7 +325,9 @@ export default async function IssuerDashboardPage({ params }: RouteProps) {
           )}
         </section>
 
-        <IssueCredentialPanel authority={authority} />
+        <IssuerTemplateManager authority={authority} initialTemplates={templates} />
+
+        <IssueCredentialPanel authority={authority} templates={templates} />
 
         <section className="mt-12 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-6">
           <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-3">
