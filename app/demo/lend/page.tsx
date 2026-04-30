@@ -4,6 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { calculateDynamicCollateral } from "@glurk-protocol/sdk";
+
+const STANDARD_COLLATERAL_RATIO = 1.5; // 150% — pool default with no Glurk identity
 
 const CREDENTIAL_NAMES: Record<string, string> = {
   "credit-score": "Credit Score Basics",
@@ -61,8 +64,12 @@ function LendContent() {
     });
   }, [callbackWallet, loadCredentials, searchParams]);
 
-  const collateralSavings = userData ? Math.round((userData.score / 1000) * 55) : 0;
-  const yourCollateral = 150 - collateralSavings;
+  // Dogfood the published SDK helper. Lending integrators read this same function.
+  const yourCollateralRatio = userData
+    ? calculateDynamicCollateral(STANDARD_COLLATERAL_RATIO, userData.score)
+    : STANDARD_COLLATERAL_RATIO;
+  const yourCollateral = Math.round(yourCollateralRatio * 100);
+  const collateralSavings = Math.round(STANDARD_COLLATERAL_RATIO * 100) - yourCollateral;
 
   const handleSignIn = () => {
     const params = new URLSearchParams({
