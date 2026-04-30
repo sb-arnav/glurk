@@ -237,6 +237,43 @@ function ConsentRow({
   );
 }
 
+function ShareProfileButton({ wallet }: { wallet: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleShare() {
+    const url = `${window.location.origin}/p/${wallet}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: "My Glurk identity",
+          text: "Verified credentials on Solana.",
+          url,
+        });
+        return;
+      }
+    } catch {
+      // user cancelled share sheet — fall through to clipboard
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      // clipboard blocked — surface the URL so user can copy manually
+      window.prompt("Copy your public Glurk URL:", url);
+    }
+  }
+
+  return (
+    <button
+      onClick={handleShare}
+      className="text-[10px] font-mono text-[#7B6FF8]/70 hover:text-white transition-colors"
+    >
+      {copied ? "✓ Copied" : "Share my Glurk ↗"}
+    </button>
+  );
+}
+
 export default function ProfilePage() {
   const { data: session, status: sessionStatus } = useSession();
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -486,14 +523,17 @@ export default function ProfilePage() {
             <ScoreArc score={score} />
             <div className="flex-1">
               <p className="font-mono text-sm text-white/50">{shortenAddr(walletAddress)}</p>
-              <a
-                href={`${EXPLORER_BASE}/address/${walletAddress}?cluster=devnet`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[10px] text-white/20 hover:text-white/40 transition-colors font-mono"
-              >
-                View on explorer ↗
-              </a>
+              <div className="flex items-center gap-3 mt-0.5">
+                <a
+                  href={`${EXPLORER_BASE}/address/${walletAddress}?cluster=devnet`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[10px] text-white/20 hover:text-white/40 transition-colors font-mono"
+                >
+                  View on explorer ↗
+                </a>
+                <ShareProfileButton wallet={walletAddress} />
+              </div>
               <div className="flex flex-wrap gap-2 mt-3">
                 <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-[#5B4FE8]/10 border border-[#5B4FE8]/20 text-[#7B6FF8]">
                   {creds.length} credential{creds.length !== 1 ? "s" : ""}
