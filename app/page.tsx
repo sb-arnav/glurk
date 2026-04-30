@@ -671,6 +671,9 @@ export default function Home() {
             <Link href="/docs" className="hover:text-white/40 transition-colors">
               Docs
             </Link>
+            <Link href="/pricing" className="hover:text-white/40 transition-colors">
+              Pricing
+            </Link>
             <a
               href="https://github.com/sb-arnav/glurk"
               target="_blank"

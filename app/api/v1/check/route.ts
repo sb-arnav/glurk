@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PublicKey } from '@solana/web3.js';
 import { getSerializedGlurkProfile, normalizeEmail } from '@/lib/glurk-profile';
 import { createClient } from '@supabase/supabase-js';
+import { consumeApiKey, readApiKey, TIER_QUOTAS } from '@/lib/api-keys';
 
 export const dynamic = 'force-dynamic';
 // Brief cache to take pressure off devnet RPC. Score and credentials only
@@ -9,15 +10,24 @@ export const dynamic = 'force-dynamic';
 // integrator path. Bump down to 0 if you need real-time.
 export const revalidate = 30;
 
-const COMMON_HEADERS = {
+const BASE_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Glurk-Api-Key',
   'Cache-Control': 's-maxage=30, stale-while-revalidate=120',
 };
 
+// Free anonymous tier — gentle ceiling baked into the cache headers
+// since we don't have edge rate limiting yet. Pro keys get higher
+// monthly quotas tracked in Postgres.
+const ANONYMOUS_TIER_QUOTA = 100; // signals soft ceiling; actual enforcement is via cache + chain RPC throttle
+
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: COMMON_HEADERS });
+  return new NextResponse(null, { status: 204, headers: BASE_HEADERS });
+}
+
+function rateHeaders(extras: Record<string, string>): Record<string, string> {
+  return { ...BASE_HEADERS, ...extras };
 }
 
 interface CheckResponse {
@@ -62,15 +72,54 @@ interface CheckError {
  *   - Drops: airdrop only to wallets with credentials from issuer X
  */
 export async function GET(req: NextRequest) {
+  // ─── Tier resolution & quota check ───
+  const apiKey = readApiKey(req, req.nextUrl);
+  let tier = 'anonymous';
+  let quotaRemaining: number | null = null;
+  let quotaTotal = ANONYMOUS_TIER_QUOTA;
+
+  if (apiKey) {
+    const result = await consumeApiKey(apiKey);
+    if (!result.ok) {
+      const status = result.reason === 'quota_exceeded' ? 429 : 401;
+      const err: CheckError = {
+        ok: false,
+        error:
+          result.reason === 'quota_exceeded'
+            ? 'monthly quota exceeded for this API key'
+            : result.reason === 'deactivated'
+              ? 'this API key has been deactivated'
+              : 'invalid API key',
+      };
+      return NextResponse.json(err, {
+        status,
+        headers: rateHeaders({
+          'X-Glurk-Tier': tier,
+          'X-Glurk-Quota-Remaining': '0',
+        }),
+      });
+    }
+    tier = result.record!.tier;
+    quotaRemaining = result.remaining ?? null;
+    quotaTotal = result.record!.monthly_quota;
+  }
+
   const wallet = req.nextUrl.searchParams.get('wallet');
   const email = req.nextUrl.searchParams.get('email');
+
+  const responseHeaders = rateHeaders({
+    'X-Glurk-Tier': tier,
+    'X-Glurk-Quota-Total': String(quotaTotal),
+    'X-Glurk-Quota-Remaining':
+      quotaRemaining !== null ? String(quotaRemaining) : 'unlimited',
+  });
 
   if (!wallet && !email) {
     const err: CheckError = {
       ok: false,
       error: 'wallet or email query param required',
     };
-    return NextResponse.json(err, { status: 400, headers: COMMON_HEADERS });
+    return NextResponse.json(err, { status: 400, headers: responseHeaders });
   }
 
   let resolvedWallet = wallet;
@@ -86,7 +135,7 @@ export async function GET(req: NextRequest) {
       .single();
     if (error || !data) {
       const err: CheckError = { ok: false, error: 'no wallet linked to this email' };
-      return NextResponse.json(err, { status: 404, headers: COMMON_HEADERS });
+      return NextResponse.json(err, { status: 404, headers: responseHeaders });
     }
     resolvedWallet = data.wallet_address;
   }
@@ -95,7 +144,7 @@ export async function GET(req: NextRequest) {
     new PublicKey(resolvedWallet!);
   } catch {
     const err: CheckError = { ok: false, error: 'invalid wallet address' };
-    return NextResponse.json(err, { status: 400, headers: COMMON_HEADERS });
+    return NextResponse.json(err, { status: 400, headers: responseHeaders });
   }
 
   try {
@@ -120,9 +169,12 @@ export async function GET(req: NextRequest) {
       generatedAt: Math.floor(Date.now() / 1000),
     };
 
-    return NextResponse.json(body, { headers: COMMON_HEADERS });
+    return NextResponse.json(body, { headers: responseHeaders });
   } catch (e) {
     const err: CheckError = { ok: false, error: (e as Error).message };
-    return NextResponse.json(err, { status: 500, headers: COMMON_HEADERS });
+    return NextResponse.json(err, { status: 500, headers: responseHeaders });
   }
 }
+
+// Re-export for typing reference; the helper module is the source of truth.
+export { TIER_QUOTAS };
