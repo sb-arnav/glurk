@@ -31,10 +31,10 @@ export default function Home() {
               {PROGRAM_ID.slice(0, 8)}...{PROGRAM_ID.slice(-4)} ↗
             </a>
             <Link
-              href="/demo/lend"
+              href="/pricing"
               className="px-4 py-2 rounded-xl bg-[#5B4FE8] text-white text-sm font-bold hover:bg-[#6B5FF8] transition-colors"
             >
-              Try Demo
+              Get API key
             </Link>
           </div>
         </div>
@@ -61,28 +61,28 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link
-                href="/demo/lend"
+                href="/for-fintechs"
                 className="px-5 py-3 rounded-xl bg-[#5B4FE8] text-white font-bold hover:bg-[#6B5FF8] shadow-[0_16px_40px_rgba(91,79,232,0.28)] transition-colors text-sm"
               >
-                StaqLend Demo 🏦
+                Underwrite Gen Z →
               </Link>
               <Link
-                href="/demo/jobs"
-                className="px-5 py-3 rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-300 font-bold hover:bg-blue-500/25 transition-colors text-sm"
+                href="/issuers/register"
+                className="px-5 py-3 rounded-xl bg-white/[0.06] border border-white/[0.1] text-white/80 font-semibold hover:bg-white/[0.1] transition-colors text-sm"
               >
-                StaqJobs Demo 💼
+                Become an issuer
               </Link>
               <Link
-                href="/connect"
-                className="px-5 py-3 rounded-xl bg-white/[0.06] border border-white/[0.1] text-white/70 font-semibold hover:bg-white/[0.08] transition-colors text-sm"
-              >
-                Connect Sources
-              </Link>
-              <Link
-                href="/profile"
+                href="/docs"
                 className="px-5 py-3 rounded-xl border border-white/[0.1] bg-white/[0.03] text-white/60 font-semibold hover:bg-white/[0.06] transition-colors text-sm"
               >
-                Your Profile
+                Read the docs
+              </Link>
+              <Link
+                href="/manifesto"
+                className="px-5 py-3 rounded-xl text-white/45 font-semibold hover:text-white/80 transition-colors text-sm"
+              >
+                Manifesto →
               </Link>
             </div>
             <div className="mt-5">
@@ -90,15 +90,6 @@ export default function Home() {
             </div>
             <div className="mt-6">
               <WalletLookup />
-            </div>
-            <div className="mt-5">
-              <Link
-                href="/for-fintechs"
-                className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-[#5B4FE8]/30 bg-[#5B4FE8]/[0.08] hover:bg-[#5B4FE8]/[0.15] transition-colors text-[12px] text-white/75"
-              >
-                <span className="font-bold">Building a fintech in India?</span>
-                <span className="text-[#A79EFF]">Underwrite Gen Z without CIBIL →</span>
-              </Link>
             </div>
           </div>
 
@@ -593,14 +584,14 @@ export default function Home() {
             className="group rounded-2xl border border-[#5B4FE8]/[0.12] bg-[#5B4FE8]/[0.05] p-5 hover:border-[#5B4FE8]/[0.25] transition-colors shadow-[0_18px_40px_rgba(91,79,232,0.12)]"
           >
             <p className="text-[10px] font-mono tracking-widest uppercase text-[#7B6FF8]/40 mb-3">
-              Demo · DeFi
+              Reference Integration · DeFi
             </p>
             <p className="text-[15px] font-bold">StaqLend 🏦</p>
             <p className="text-sm text-white/35 mt-1">
               Lower collateral based on verified financial knowledge.
             </p>
             <p className="text-[11px] text-[#7B6FF8]/40 mt-2 group-hover:text-[#7B6FF8]/70 transition-colors">
-              Try the flow →
+              Walk through the integration →
             </p>
           </Link>
           <a
@@ -642,14 +633,14 @@ export default function Home() {
             className="group rounded-2xl border border-blue-500/[0.12] bg-blue-500/[0.04] p-5 hover:border-blue-500/[0.25] transition-colors shadow-[0_18px_40px_rgba(54,126,255,0.1)]"
           >
             <p className="text-[10px] font-mono tracking-widest uppercase text-blue-400/40 mb-3">
-              Demo · Hiring
+              Reference Integration · Hiring
             </p>
             <p className="text-[15px] font-bold">StaqJobs 💼</p>
             <p className="text-sm text-white/35 mt-1">
               Skip take-home tests. Verified skills unlock direct applications.
             </p>
             <p className="text-[11px] text-blue-400/40 mt-2 group-hover:text-blue-400/70 transition-colors">
-              Try the flow →
+              Walk through the integration →
             </p>
           </Link>
         </div>
