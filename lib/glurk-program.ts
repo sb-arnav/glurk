@@ -68,7 +68,7 @@ interface GlurkProgramMethods {
     score: number,
     mintAddress: PublicKey,
   ): {
-    accounts(accounts: RegisterCredentialAccounts): Pick<TransactionBuilder, 'rpc'>;
+    accounts(accounts: RegisterCredentialAccounts): Pick<TransactionBuilder, 'rpc' | 'transaction'>;
   };
 }
 
@@ -177,6 +177,22 @@ export function findContributionPda(
 export function findConsentPda(user: PublicKey, requester: PublicKey): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
     [Buffer.from('consent'), user.toBuffer(), requester.toBuffer()],
+    GLURK_PROGRAM_ID,
+  );
+}
+
+export function findCredentialPda(
+  issuerAuthority: PublicKey,
+  user: PublicKey,
+  slug: string,
+): [PublicKey, number] {
+  return PublicKey.findProgramAddressSync(
+    [
+      Buffer.from('credential'),
+      issuerAuthority.toBuffer(),
+      user.toBuffer(),
+      Buffer.from(slug),
+    ],
     GLURK_PROGRAM_ID,
   );
 }

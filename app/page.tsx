@@ -607,6 +607,23 @@ export default function Home() {
               Try on dial.to →
             </p>
           </a>
+          <a
+            href="https://dial.to/?action=solana-action:https://glurk.slayerblade.site/api/actions/issue-credential"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group rounded-2xl border border-yellow-500/[0.12] bg-yellow-500/[0.03] p-5 hover:border-yellow-500/[0.25] transition-colors shadow-[0_16px_36px_rgba(6,5,18,0.2)]"
+          >
+            <p className="text-[10px] font-mono tracking-widest uppercase text-yellow-400/40 mb-3">
+              Founding Issuance
+            </p>
+            <p className="text-[15px] font-bold">Mint Early Adopter ⚡</p>
+            <p className="text-sm text-white/35 mt-1">
+              Glurk-issued credential for wallets that interact during the founding period. One-tap mint from any Blink-aware client.
+            </p>
+            <p className="text-[11px] text-yellow-400/40 mt-2 group-hover:text-yellow-400/70 transition-colors">
+              Try on dial.to →
+            </p>
+          </a>
           <Link
             href="/demo/jobs"
             className="group rounded-2xl border border-blue-500/[0.12] bg-blue-500/[0.04] p-5 hover:border-blue-500/[0.25] transition-colors shadow-[0_18px_40px_rgba(54,126,255,0.1)]"
