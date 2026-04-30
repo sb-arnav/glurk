@@ -82,6 +82,28 @@ PDA = findProgramAddress(["credential", issuer, user, "credit-score"], PROGRAM_I
 
 If the account exists → credential is verified. Read the data for tier, score, and timestamp.
 
+## Protocol Adapters
+
+Helpers for building third-party integrations on top of Glurk credentials.
+
+### `calculateDynamicCollateral(baseRatio, glurkScore)`
+
+Maps a user's Glurk Score (0–1000) to a discounted collateral ratio for lending protocols. Discounts kick in above a 300-score threshold, scale linearly to a 35% max reduction at 1000, and are floored at 1.05× to prevent flash-loan liquidation exploits.
+
+```typescript
+import { calculateDynamicCollateral } from '@glurk-protocol/sdk';
+
+// Standard pool requires 150% collateral
+const baseRatio = 1.5;
+
+calculateDynamicCollateral(baseRatio, 0);    // 1.5  (no credentials → no discount)
+calculateDynamicCollateral(baseRatio, 300);  // 1.5  (below threshold)
+calculateDynamicCollateral(baseRatio, 600);  // 1.275
+calculateDynamicCollateral(baseRatio, 1000); // 1.05 (max discount, hard floor)
+```
+
+Drop-in for Kamino-style undercollateralized vaults: read the user's Glurk Score once via `getProfile`, then pass it into your pool's collateralization math.
+
 ## Become an Issuer
 
 Want to issue credentials through the protocol? You need:

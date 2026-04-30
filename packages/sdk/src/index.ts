@@ -349,3 +349,26 @@ export async function getProfile(
 ): Promise<GlurkProfile> {
   return new GlurkClient(connection).getProfile(user);
 }
+
+// ─── Protocol Adapters ───────────────────────────────────────────────────────
+
+/**
+ * Calculates optimal collateralization ratio for lending protocols based on a user's Glurk Score.
+ * Useful for building undercollateralized DeFi primitives (e.g., StaqLend).
+ *
+ * @param baseCollateralRatio Standard collateral required (e.g., 1.5 for 150%)
+ * @param glurkScore User's Glurk reputation score (0-1000)
+ * @returns Discounted collateral ratio (e.g. 1.25 for 125%)
+ */
+export function calculateDynamicCollateral(baseCollateralRatio: number, glurkScore: number): number {
+  const MAX_DISCOUNT = 0.35; // Max 35% reduction in collateral requirements
+  const THRESHOLD_SCORE = 300; // Discounts begin materializing after 300 score
+
+  if (glurkScore <= THRESHOLD_SCORE) return baseCollateralRatio;
+
+  // Linear discount scaling from threshold to 1000
+  const discountFactor = ((glurkScore - THRESHOLD_SCORE) / (1000 - THRESHOLD_SCORE)) * MAX_DISCOUNT;
+  
+  // Hard floor at 105% collateralization to prevent flash-loan liquidation exploits
+  return Math.max(1.05, baseCollateralRatio * (1 - discountFactor));
+}
