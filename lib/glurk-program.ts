@@ -60,7 +60,7 @@ interface GlurkProgramMethods {
     accounts(accounts: RevokeAccessAccounts): Pick<TransactionBuilder, 'transaction'>;
   };
   registerIssuer(name: string): {
-    accounts(accounts: RegisterIssuerAccounts): Pick<TransactionBuilder, 'rpc'>;
+    accounts(accounts: RegisterIssuerAccounts): Pick<TransactionBuilder, 'rpc' | 'transaction'>;
   };
   registerCredential(
     slug: string,

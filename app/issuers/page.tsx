@@ -1,15 +1,34 @@
 import Link from "next/link";
 import Image from "next/image";
+import { getAllIssuers } from "@/lib/issuers";
 
 const PROGRAM_ID = "5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ";
+const EXPLORER_BASE = "https://explorer.solana.com";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Become an Issuer — Glurk Protocol",
   description:
-    "Issue verifiable on-chain credentials to your users. Build on the Glurk identity protocol.",
+    "Anyone can issue credentials on Glurk. Permissionless on-chain registration. Browse the live registry.",
 };
 
-export default function IssuersPage() {
+function shortenAddr(addr: string, head = 4, tail = 4) {
+  if (addr.length <= head + tail) return addr;
+  return `${addr.slice(0, head)}…${addr.slice(-tail)}`;
+}
+
+export default async function IssuersPage() {
+  let issuers: Awaited<ReturnType<typeof getAllIssuers>> = [];
+  try {
+    issuers = await getAllIssuers();
+  } catch {
+    issuers = [];
+  }
+  const activeCount = issuers.filter((i) => i.active).length;
+  const totalIssued = issuers.reduce((s, i) => s + i.credentialsIssued, 0);
+
   return (
     <div className="min-h-screen text-white">
       {/* Nav */}
@@ -19,14 +38,12 @@ export default function IssuersPage() {
             <Image src="/glurk.png" alt="Glurk" width={24} height={24} />
             <span className="text-sm font-semibold text-white/50">Glurk Protocol</span>
           </Link>
-          <a
-            href="https://github.com/sb-arnav/glurk"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] text-white/25 hover:text-white/50 transition-colors font-mono"
+          <Link
+            href="/issuers/register"
+            className="text-[11px] font-mono px-3 py-1.5 rounded-md bg-[#5B4FE8] hover:bg-[#6B5FF8] transition-colors text-white font-bold"
           >
-            GitHub ↗
-          </a>
+            Become an issuer →
+          </Link>
         </div>
       </nav>
 
@@ -35,18 +52,27 @@ export default function IssuersPage() {
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] items-start mb-16">
           <div className="max-w-2xl">
             <span className="inline-flex rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-3 py-1 text-[11px] font-mono tracking-widest uppercase text-[#A79EFF] mb-6">
-              Issuer Program
+              Permissionless · {activeCount} live issuer{activeCount === 1 ? "" : "s"}
             </span>
             <h1 className="text-4xl sm:text-5xl font-black tracking-tight mb-5 leading-[1.05]">
-              Issue credentials.
-              <br />
-              <span className="text-[#7B6FF8]">Build reputation infrastructure.</span>
+              Anyone can issue credentials.{" "}
+              <span className="text-[#7B6FF8]">No permission needed.</span>
             </h1>
-            <p className="text-lg text-white/45 leading-relaxed">
-              Glurk issuers write verifiable facts about users to Solana. Every credential
-              you issue becomes part of a portable identity that follows users across every
-              app in the network.
+            <p className="text-lg text-white/45 leading-relaxed mb-6">
+              Glurk&apos;s{" "}
+              <code className="text-[14px] font-mono text-[#A79EFF] bg-[#5B4FE8]/[0.1] px-1.5 py-0.5 rounded">
+                register_issuer
+              </code>{" "}
+              instruction is open to any Solana wallet. Sign one transaction, pay the rent,
+              and your wallet becomes an authority that can write verifiable credentials
+              to any user — readable by every app in the network.
             </p>
+            <Link
+              href="/issuers/register"
+              className="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-[#5B4FE8] hover:bg-[#6B5FF8] transition-colors text-sm font-bold shadow-[0_18px_40px_rgba(91,79,232,0.32)]"
+            >
+              Register your wallet →
+            </Link>
           </div>
 
           <div className="rounded-[28px] border border-white/[0.08] bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(5,4,18,0.34)] backdrop-blur-xl">
@@ -80,6 +106,79 @@ export default function IssuersPage() {
             </div>
           </div>
         </div>
+
+        {/* Live registry */}
+        <section className="mb-16">
+          <div className="flex items-end justify-between mb-5">
+            <div>
+              <p className="text-[10px] font-mono tracking-widest uppercase text-white/25">
+                Live registry
+              </p>
+              <p className="text-2xl font-black tracking-tight mt-1">
+                {issuers.length} issuer{issuers.length === 1 ? "" : "s"} on chain
+                <span className="text-white/30 font-normal text-base ml-2">
+                  · {totalIssued.toLocaleString()} credentials issued
+                </span>
+              </p>
+            </div>
+            <Link
+              href="/issuers/register"
+              className="text-[11px] font-mono text-[#7B6FF8] hover:text-white transition-colors"
+            >
+              + add yours
+            </Link>
+          </div>
+
+          {issuers.length === 0 ? (
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-8 text-center">
+              <p className="text-sm text-white/55 mb-4">
+                Couldn&apos;t reach devnet right now. Try again in a moment.
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden">
+              {issuers.map((issuer) => (
+                <Link
+                  key={issuer.pda}
+                  href={`/issuers/${issuer.authority}`}
+                  className="flex items-center justify-between px-5 py-4 border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.03] transition-colors gap-3"
+                >
+                  <div className="flex items-center gap-4 min-w-0 flex-1">
+                    <div className="w-9 h-9 rounded-xl bg-[#5B4FE8]/15 border border-[#5B4FE8]/30 flex items-center justify-center font-bold text-sm text-[#A79EFF] shrink-0">
+                      {issuer.name.slice(0, 1).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-bold truncate">{issuer.name}</p>
+                        {!issuer.active && (
+                          <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/[0.04] border border-white/[0.08] text-white/30">
+                            inactive
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-mono text-white/30 truncate">
+                        {shortenAddr(issuer.authority, 6, 6)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0">
+                    <div className="text-right">
+                      <p className="text-sm font-black text-white">
+                        {issuer.credentialsIssued.toLocaleString()}
+                      </p>
+                      <p className="text-[9px] font-mono uppercase tracking-wider text-white/30">
+                        credentials
+                      </p>
+                    </div>
+                    <span className="text-[11px] font-mono text-white/25 hidden sm:inline">
+                      trust {issuer.trustScore}
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
 
         {/* What issuers get */}
         <section className="mb-16">
@@ -121,9 +220,9 @@ export default function IssuersPage() {
             {[
               {
                 step: "01",
-                title: "Register as an issuer",
-                body: "Call register_issuer with your wallet as the authority. This creates an IssuerAccount PDA on-chain.",
-                code: `await program.methods\n  .registerIssuer("Your App Name")\n  .accounts({ issuerAuthority: wallet.publicKey })\n  .rpc();`,
+                title: "Register as an issuer (60 seconds, no SDK needed)",
+                body: "Use the self-serve flow at /issuers/register — connect Phantom, name your issuer, sign once. Or build the transaction yourself with the SDK.",
+                code: `// Browser flow (no admin needed):\n//   visit /issuers/register → connect → sign\n\n// Or programmatically:\nawait program.methods\n  .registerIssuer("Your App Name")\n  .accounts({\n    admin: wallet.publicKey,\n    issuerAuthority: wallet.publicKey,\n  })\n  .rpc();`,
               },
               {
                 step: "02",
@@ -284,27 +383,26 @@ export default function IssuersPage() {
 
         {/* CTA */}
         <div className="rounded-[32px] border border-[#5B4FE8]/[0.15] bg-[#5B4FE8]/[0.06] p-8 shadow-[0_24px_64px_rgba(91,79,232,0.14)]">
-          <h2 className="text-2xl font-black mb-2">Ready to integrate?</h2>
+          <h2 className="text-2xl font-black mb-2">Get on chain in 60 seconds.</h2>
           <p className="text-white/40 leading-relaxed mb-6 max-w-xl">
-            The protocol is live on Solana devnet. The SDK is open source.
-            Start issuing credentials and get listed as an official Glurk issuer.
+            No application form, no waitlist, no admin approval. The protocol&apos;s
+            register_issuer instruction is permissionless — your wallet signs, your
+            issuer goes live.
           </p>
           <div className="flex flex-wrap gap-3">
+            <Link
+              href="/issuers/register"
+              className="px-5 py-2.5 rounded-xl bg-[#5B4FE8] text-white text-sm font-bold hover:bg-[#6B5FF8] transition-colors"
+            >
+              Register your wallet →
+            </Link>
             <a
               href="https://github.com/sb-arnav/glurk/tree/main/packages/sdk"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-5 py-2.5 rounded-xl bg-[#5B4FE8] text-white text-sm font-bold hover:bg-[#6B5FF8] transition-colors"
-            >
-              SDK on GitHub ↗
-            </a>
-            <a
-              href="https://github.com/sb-arnav/glurk"
-              target="_blank"
-              rel="noopener noreferrer"
               className="px-5 py-2.5 rounded-xl bg-white/[0.05] border border-white/[0.1] text-white/70 text-sm font-semibold hover:bg-white/[0.08] transition-colors"
             >
-              Full protocol docs ↗
+              SDK on GitHub ↗
             </a>
           </div>
         </div>
