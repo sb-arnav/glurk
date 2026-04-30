@@ -59,7 +59,8 @@ function decide(profile: CheckResponse): Verdict {
   if (score === 0 && creds.length === 0) {
     return {
       approve: false,
-      reason: "No Glurk profile — fall back to manual KYC.",
+      reason:
+        "No Glurk profile — this is what your existing flow already does. The decision changes the moment a user earns even one credential.",
       collateralRatio: 1.5,
       hasFinlit: false,
     };
