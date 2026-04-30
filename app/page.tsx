@@ -260,9 +260,9 @@ export default function Home() {
             },
             {
               layer: "Intelligence Layer",
-              desc: "Glurk Score — a 0–1000 reputation number derived from all credentials across all issuers, weighted by tier and score. Gets richer as more apps interact with the profile.",
-              status: "demo",
-              detail: "Calculated client-side from all credential PDAs",
+              desc: "Glurk Score — a 0–1000 reputation number derived from all credentials across all issuers, weighted by tier and score. Open formula, computable from chain data.",
+              status: "live",
+              detail: "calcGlurkScore() · /score explainer · same SDK everywhere",
             },
           ].map(({ layer, desc, status, detail }) => (
             <div
@@ -652,6 +652,12 @@ export default function Home() {
             </span>
           </div>
           <div className="flex items-center gap-6 text-[11px] text-white/20">
+            <Link href="/score" className="hover:text-white/40 transition-colors">
+              How the Score Works
+            </Link>
+            <Link href="/issuers" className="hover:text-white/40 transition-colors">
+              Issuers
+            </Link>
             <a
               href="https://github.com/sb-arnav/glurk"
               target="_blank"

@@ -234,14 +234,22 @@ export default async function PublicProfilePage({ params }: RouteProps) {
             <p className="font-mono text-sm text-white/60">
               {shortenAddr(wallet, 6, 6)}
             </p>
-            <a
-              href={`${EXPLORER_BASE}/address/${wallet}?cluster=devnet`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] font-mono text-white/25 hover:text-white/50 transition-colors"
-            >
-              view on solana ↗
-            </a>
+            <div className="flex items-center justify-center gap-3 mt-1">
+              <a
+                href={`${EXPLORER_BASE}/address/${wallet}?cluster=devnet`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-mono text-white/25 hover:text-white/50 transition-colors"
+              >
+                view on solana ↗
+              </a>
+              <Link
+                href="/score"
+                className="text-[11px] font-mono text-white/25 hover:text-white/50 transition-colors"
+              >
+                how the score works ↗
+              </Link>
+            </div>
           </div>
 
           <div className="mt-6 grid grid-cols-3 gap-2 text-center">
