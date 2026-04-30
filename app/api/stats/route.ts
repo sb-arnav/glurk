@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Connection, PublicKey } from '@solana/web3.js';
+import { getEarlyAdopters } from '@/lib/early-adopters';
 
 export const dynamic = 'force-dynamic';
 // Cache for 60 s — devnet is slow, no need to hammer it
@@ -14,14 +15,14 @@ const CONSENT_DISCRIMINATOR = Buffer.from([129, 26, 32, 122, 68, 134, 146, 154])
 /**
  * GET /api/stats
  *
- * Returns total credential PDAs and consent PDAs on devnet.
- * Used by the homepage to show live proof of on-chain activity.
+ * Returns total credential PDAs, consent PDAs, and founding-member count on
+ * devnet. Used by the homepage to show live proof of on-chain activity.
  */
 export async function GET() {
   try {
     const connection = new Connection(RPC_URL, 'confirmed');
 
-    const [credAccounts, consentAccounts] = await Promise.all([
+    const [credAccounts, consentAccounts, earlyAdopters] = await Promise.all([
       connection.getProgramAccounts(PROGRAM_ID, {
         dataSlice: { offset: 0, length: 0 },
         filters: [
@@ -46,11 +47,14 @@ export async function GET() {
           },
         ],
       }),
+      // Reads the same data as /early-adopters; cached at the route level.
+      getEarlyAdopters().catch(() => []),
     ]);
 
     return NextResponse.json({
       credentials: credAccounts.length,
       consents: consentAccounts.length,
+      earlyAdopters: earlyAdopters.length,
     });
   } catch (e: unknown) {
     const err = e as Error;

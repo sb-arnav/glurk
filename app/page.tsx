@@ -651,9 +651,15 @@ export default function Home() {
               Glurk Protocol
             </span>
           </div>
-          <div className="flex items-center gap-6 text-[11px] text-white/20">
+          <div className="flex items-center gap-6 text-[11px] text-white/20 flex-wrap">
+            <Link href="/manifesto" className="hover:text-white/40 transition-colors">
+              Manifesto
+            </Link>
             <Link href="/score" className="hover:text-white/40 transition-colors">
               How the Score Works
+            </Link>
+            <Link href="/early-adopters" className="hover:text-white/40 transition-colors">
+              Founding Members
             </Link>
             <Link href="/issuers" className="hover:text-white/40 transition-colors">
               Issuers
