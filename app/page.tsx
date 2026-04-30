@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import StatsBar from "./components/StatsBar";
+import WalletLookup from "./components/WalletLookup";
 
 const PROGRAM_ID = "5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ";
 const EXPLORER_URL = `https://explorer.solana.com/address/${PROGRAM_ID}?cluster=devnet`;
@@ -86,6 +87,9 @@ export default function Home() {
             </div>
             <div className="mt-5">
               <StatsBar />
+            </div>
+            <div className="mt-6">
+              <WalletLookup />
             </div>
           </div>
 
