@@ -3,6 +3,11 @@ import { PublicKey } from '@solana/web3.js';
 import { getSerializedGlurkProfile, normalizeEmail } from '@/lib/glurk-profile';
 import { createClient } from '@supabase/supabase-js';
 import { consumeApiKey, readApiKey, TIER_QUOTAS } from '@/lib/api-keys';
+import {
+  FIXTURE_ORDER,
+  isTestWallet,
+  resolveFixture,
+} from '@/lib/test-fixtures';
 
 export const dynamic = 'force-dynamic';
 // Brief cache to take pressure off devnet RPC. Score and credentials only
@@ -46,6 +51,8 @@ interface CheckResponse {
   }>;
   network: 'devnet';
   generatedAt: number;
+  /** Present and `true` only when the wallet was a `test:*` sentinel. */
+  test?: true;
 }
 
 interface CheckError {
@@ -120,6 +127,39 @@ export async function GET(req: NextRequest) {
       error: 'wallet or email query param required',
     };
     return NextResponse.json(err, { status: 400, headers: responseHeaders });
+  }
+
+  // ─── Test mode: deterministic fixtures (no chain read) ───
+  // Sentinel wallets like `test:approve` short-circuit to a synthetic profile.
+  // Lets integrators write CI tests without finding real wallets in every
+  // edge-case state. See lib/test-fixtures.ts for the catalog.
+  if (wallet && isTestWallet(wallet)) {
+    const fixture = resolveFixture(wallet);
+    if (!fixture) {
+      const err: CheckError = {
+        ok: false,
+        error: `unknown test scenario. Available: ${FIXTURE_ORDER.map((s) => `test:${s}`).join(', ')}`,
+      };
+      return NextResponse.json(err, {
+        status: 400,
+        headers: { ...responseHeaders, 'X-Glurk-Test-Mode': 'true' },
+      });
+    }
+    const issuerCount = new Set(fixture.credentials.map((c) => c.issuer)).size;
+    const body: CheckResponse = {
+      ok: true,
+      wallet,
+      glurkScore: fixture.glurkScore,
+      credentialCount: fixture.credentials.length,
+      issuerCount,
+      credentials: fixture.credentials,
+      network: 'devnet',
+      generatedAt: Math.floor(Date.now() / 1000),
+      test: true,
+    };
+    return NextResponse.json(body, {
+      headers: { ...responseHeaders, 'X-Glurk-Test-Mode': 'true' },
+    });
   }
 
   let resolvedWallet = wallet;

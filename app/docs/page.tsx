@@ -61,8 +61,10 @@ export default function DocsPage() {
                 cURL
               </p>
               <pre className="overflow-x-auto rounded-xl border border-white/[0.06] bg-black/40 p-4 text-[11px] text-white/75 leading-relaxed font-mono">
-{`curl https://glurk.slayerblade.site/api/v1/check\\
-  ?wallet=BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT`}
+{`curl 'https://glurk.slayerblade.site/api/v1/check?wallet=test:approve'
+
+# Returns a synthetic profile with score 600 + finlit credentials.
+# Swap the wallet for any real Solana address in production.`}
               </pre>
             </div>
             <div>
@@ -70,9 +72,13 @@ export default function DocsPage() {
                 JavaScript / TypeScript
               </p>
               <pre className="overflow-x-auto rounded-xl border border-white/[0.06] bg-black/40 p-4 text-[11px] text-white/75 leading-relaxed font-mono">
-{`const res = await fetch(
-  'https://glurk.slayerblade.site/api/v1/check' +
-  '?wallet=' + walletAddress,
+{`// In tests, point at any test:<scenario> for deterministic data.
+const wallet = process.env.NODE_ENV === 'test'
+  ? 'test:approve'
+  : walletAddress;
+
+const res = await fetch(
+  \`https://glurk.slayerblade.site/api/v1/check?wallet=\${wallet}\`,
 );
 const { glurkScore, credentials } = await res.json();`}
               </pre>
@@ -105,7 +111,81 @@ body, _ := io.ReadAll(resp.Body)`}
             </div>
           </div>
 
-          <div className="mt-6 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-5">
+          <div className="mt-6 rounded-2xl border border-[#5B4FE8]/[0.18] bg-[#5B4FE8]/[0.04] p-5">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-[#A79EFF]/80">
+                Test mode · deterministic fixtures
+              </p>
+              <span className="text-[10px] font-mono text-white/30">
+                no auth · no chain read · part of /api/v1 contract
+              </span>
+            </div>
+            <p className="text-[13px] text-white/65 leading-relaxed mb-4">
+              Pass <code className="font-mono text-[#A79EFF]">test:&lt;scenario&gt;</code>{" "}
+              as the wallet to skip the chain read and get a synthetic-but-shape-identical
+              profile. Built so you can write CI tests for high-score / low-score / no-profile
+              cases without hunting for real wallets in those exact states. Responses include
+              <code className="font-mono text-white/55">{" \"test\": true "}</code>
+              so your code can branch if needed.
+            </p>
+            <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-black/40">
+              <table className="w-full text-[11px] font-mono">
+                <thead>
+                  <tr className="border-b border-white/[0.06] text-white/40">
+                    <th className="text-left px-3 py-2">Wallet</th>
+                    <th className="text-right px-3 py-2">Score</th>
+                    <th className="text-right px-3 py-2">Creds</th>
+                    <th className="text-left px-3 py-2 hidden sm:table-cell">Use it for</th>
+                  </tr>
+                </thead>
+                <tbody className="text-white/75">
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-[#A79EFF]">test:empty</td>
+                    <td className="px-3 py-2 text-right">0</td>
+                    <td className="px-3 py-2 text-right">0</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">cold-start / no-profile UX</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-[#A79EFF]">test:reject</td>
+                    <td className="px-3 py-2 text-right">120</td>
+                    <td className="px-3 py-2 text-right">1</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">below-threshold reject path</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-[#A79EFF]">test:edge</td>
+                    <td className="px-3 py-2 text-right">300</td>
+                    <td className="px-3 py-2 text-right">2</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">exact threshold boundary</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-[#A79EFF]">test:approve</td>
+                    <td className="px-3 py-2 text-right">600</td>
+                    <td className="px-3 py-2 text-right">3</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">typical approve / dynamic-collateral</td>
+                  </tr>
+                  <tr className="border-b border-white/[0.04]">
+                    <td className="px-3 py-2 text-[#A79EFF]">test:elite</td>
+                    <td className="px-3 py-2 text-right">1000</td>
+                    <td className="px-3 py-2 text-right">5</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">max-benefit / VIP code paths</td>
+                  </tr>
+                  <tr>
+                    <td className="px-3 py-2 text-[#A79EFF]">test:hire-ready</td>
+                    <td className="px-3 py-2 text-right">175</td>
+                    <td className="px-3 py-2 text-right">2</td>
+                    <td className="px-3 py-2 text-white/45 hidden sm:table-cell">GitHub-only filter (talent flows)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[11px] text-white/35 mt-3 leading-relaxed">
+              Scenario names and their numeric outputs are stable within v1. Responses also
+              set the <code className="font-mono text-white/55">X-Glurk-Test-Mode</code> header.
+              Try them in the playground above.
+            </p>
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-5">
             <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-3">
               Response shape
             </p>

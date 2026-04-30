@@ -4,9 +4,21 @@ import { useState } from "react";
 import { PublicKey } from "@solana/web3.js";
 
 const SAMPLES: Array<{ label: string; wallet: string }> = [
-  // Known issuer wallets — guaranteed to have credentials on devnet.
+  // Known issuer wallets — guaranteed to live on devnet.
   { label: "Staq issuer", wallet: "BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT" },
   { label: "GitHub issuer", wallet: "JCpNV2vFguuNvQKcpK1Yp8xCmiyhDH7fmc5Noi25Ut4k" },
+];
+
+// Test-mode fixtures — deterministic synthetic profiles. Match
+// lib/test-fixtures.ts. Surfaced here so devs can paste a scenario
+// without leaving the playground.
+const FIXTURES: Array<{ label: string; wallet: string; score: number }> = [
+  { label: "empty", wallet: "test:empty", score: 0 },
+  { label: "reject", wallet: "test:reject", score: 120 },
+  { label: "edge", wallet: "test:edge", score: 300 },
+  { label: "approve", wallet: "test:approve", score: 600 },
+  { label: "elite", wallet: "test:elite", score: 1000 },
+  { label: "hire-ready", wallet: "test:hire-ready", score: 175 },
 ];
 
 function isValidPubkey(value: string) {
@@ -22,6 +34,10 @@ function looksLikeEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
+function isTestSentinel(value: string) {
+  return value.startsWith("test:");
+}
+
 export default function ApiPlayground() {
   const [input, setInput] = useState(SAMPLES[0].wallet);
   const [response, setResponse] = useState<string | null>(null);
@@ -34,12 +50,20 @@ export default function ApiPlayground() {
     if (!trimmed) return;
 
     let url: string;
-    if (isValidPubkey(trimmed)) {
+    if (isTestSentinel(trimmed)) {
+      url = `/api/v1/check?wallet=${encodeURIComponent(trimmed)}`;
+    } else if (isValidPubkey(trimmed)) {
       url = `/api/v1/check?wallet=${encodeURIComponent(trimmed)}`;
     } else if (looksLikeEmail(trimmed)) {
       url = `/api/v1/check?email=${encodeURIComponent(trimmed)}`;
     } else {
-      setResponse(JSON.stringify({ error: "Enter a Solana wallet or email" }, null, 2));
+      setResponse(
+        JSON.stringify(
+          { error: "Enter a Solana wallet, email, or test:<scenario>" },
+          null,
+          2,
+        ),
+      );
       setStatus(null);
       setLatency(null);
       return;
@@ -95,7 +119,7 @@ export default function ApiPlayground() {
           </button>
         </div>
         <div className="flex items-center gap-2 mt-2 flex-wrap">
-          <span className="text-[10px] font-mono text-white/30">samples:</span>
+          <span className="text-[10px] font-mono text-white/30">live:</span>
           {SAMPLES.map((s) => (
             <button
               key={s.wallet}
@@ -103,6 +127,20 @@ export default function ApiPlayground() {
               className="text-[10px] font-mono px-2 py-0.5 rounded border border-white/[0.06] bg-white/[0.02] text-white/40 hover:text-white/80 hover:border-white/[0.15] transition-colors"
             >
               {s.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+          <span className="text-[10px] font-mono text-[#A79EFF]/60">test mode:</span>
+          {FIXTURES.map((f) => (
+            <button
+              key={f.wallet}
+              onClick={() => setInput(f.wallet)}
+              className="text-[10px] font-mono px-2 py-0.5 rounded border border-[#5B4FE8]/[0.18] bg-[#5B4FE8]/[0.05] text-[#A79EFF]/70 hover:text-white hover:border-[#5B4FE8]/[0.45] transition-colors"
+              title={`Score ${f.score} — synthetic, deterministic`}
+            >
+              {f.label}
+              <span className="text-white/30 ml-1">{f.score}</span>
             </button>
           ))}
         </div>
