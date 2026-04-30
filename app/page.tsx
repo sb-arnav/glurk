@@ -46,18 +46,18 @@ export default function Home() {
           <div className="max-w-3xl">
             <p className="inline-flex items-center gap-2 rounded-full border border-[#5B4FE8]/20 bg-[#5B4FE8]/10 px-3 py-1 text-[11px] font-mono tracking-widest uppercase text-[#A79EFF] mb-6">
               <span className="h-2 w-2 rounded-full bg-[#7B6FF8]" />
-              Infrastructure · Solana Devnet
+              The trust layer · Solana
             </p>
             <h1 className="text-5xl font-black tracking-tight leading-[1.02] mb-6 sm:text-6xl">
-              Apps trade data.
-              <br />
-              <span className="text-[#7B6FF8]">Users own everything.</span>
+              Identity is the last piece of internet infrastructure that hasn&apos;t been{" "}
+              <span className="text-[#7B6FF8]">protocolized.</span>
             </h1>
             <p className="text-lg text-white/50 leading-relaxed max-w-2xl mb-10">
-              Glurk is an open credential protocol on Solana where data flows both
-              ways. Every app that reads a user&apos;s identity must contribute
-              something back, enforced at the program level, not by terms of
-              service.
+              Glurk is the open protocol where verified credentials about a person
+              (skills, scores, attestations, reputation) become portable, reciprocal,
+              and owned by the wallet they&apos;re about. Every app reads from one
+              shared register instead of rebuilding identity from scratch. Plumbing
+              for everything humans — and eventually AI agents — do online.
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Link
