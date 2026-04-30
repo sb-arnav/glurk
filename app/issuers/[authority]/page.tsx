@@ -6,6 +6,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 
 import { getIssuer } from "@/lib/issuers";
 import { GLURK_PROGRAM_ID, GLURK_RPC_URL } from "@/lib/glurk-program";
+import IssueCredentialPanel from "@/app/components/IssueCredentialPanel";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -302,9 +303,11 @@ export default async function IssuerDashboardPage({ params }: RouteProps) {
           )}
         </section>
 
+        <IssueCredentialPanel authority={authority} />
+
         <section className="mt-12 rounded-2xl border border-white/[0.05] bg-white/[0.02] p-6">
           <p className="text-[10px] font-mono uppercase tracking-widest text-white/30 mb-3">
-            Issue credentials with the SDK
+            Or do it programmatically (SDK)
           </p>
           <pre className="overflow-x-auto rounded-xl border border-white/[0.06] bg-black/40 p-4 text-[12px] text-white/75 leading-relaxed font-mono">
 {`import { Program, AnchorProvider, Wallet } from '@coral-xyz/anchor';
