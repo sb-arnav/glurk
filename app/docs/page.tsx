@@ -368,6 +368,12 @@ console.log(profile.glurkScore, profile.credentials.length);`}
           </p>
           <div className="flex justify-center gap-3 flex-wrap">
             <Link
+              href="/dashboard/keys"
+              className="text-[12px] font-mono text-[#A79EFF] hover:text-white transition-colors"
+            >
+              your key usage →
+            </Link>
+            <Link
               href="/manifesto"
               className="text-[12px] font-mono text-[#7B6FF8] hover:text-white transition-colors"
             >

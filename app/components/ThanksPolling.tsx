@@ -133,6 +133,12 @@ export default function ThanksPolling({ transactionId }: { transactionId: string
 
         <div className="flex items-center gap-3 flex-wrap text-[12px]">
           <Link
+            href="/dashboard/keys"
+            className="font-mono text-[#A79EFF] hover:text-white transition-colors"
+          >
+            view usage →
+          </Link>
+          <Link
             href="/docs"
             className="font-mono text-[#7B6FF8] hover:text-white transition-colors"
           >
@@ -145,6 +151,11 @@ export default function ThanksPolling({ transactionId }: { transactionId: string
             email founder →
           </a>
         </div>
+        <p className="text-[11px] text-white/30 leading-relaxed">
+          Save your key now — this page is the only time it&apos;s shown in full. You can
+          always come back to <Link href="/dashboard/keys" className="underline decoration-dotted hover:text-white/70">/dashboard/keys</Link>{" "}
+          to check usage and reset date.
+        </p>
       </div>
     );
   }
