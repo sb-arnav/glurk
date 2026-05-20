@@ -41,7 +41,13 @@ export async function POST(req: NextRequest) {
       connection.getAccountInfo(contributionPda),
     ]);
 
-    if (existingConsent && existingContribution) {
+    // ConsentAccount layout: 8 discriminator + 32 user + 32 requester + 8 granted_at + 1 active
+    // We only short-circuit when the consent is currently active; a revoked
+    // consent must fall through so the user can re-grant in this same flow.
+    const consentIsActive =
+      !!existingConsent && existingConsent.data.length >= 81 && existingConsent.data[80] === 1;
+
+    if (consentIsActive && existingContribution) {
       return NextResponse.json({
         alreadyGranted: true,
         pdas: {

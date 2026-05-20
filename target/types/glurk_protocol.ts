@@ -16,7 +16,9 @@ export type GlurkProtocol = {
     {
       "name": "deactivateIssuer",
       "docs": [
-        "Protocol admin deactivates an issuer."
+        "Issuer deactivates themselves. The signer must be the issuer's own authority.",
+        "(Registration is self-serve and permissionless, so deactivation is too —",
+        "scoped to the issuer's own account, never someone else's.)"
       ],
       "discriminator": [
         52,
@@ -30,12 +32,31 @@ export type GlurkProtocol = {
       ],
       "accounts": [
         {
-          "name": "admin",
+          "name": "authority",
           "signer": true
         },
         {
           "name": "issuerAccount",
-          "writable": true
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  115,
+                  115,
+                  117,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "authority"
+              }
+            ]
+          }
         }
       ],
       "args": []

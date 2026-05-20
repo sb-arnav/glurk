@@ -91,7 +91,9 @@ pub mod glurk_protocol {
         Ok(())
     }
 
-    /// Protocol admin deactivates an issuer.
+    /// Issuer deactivates themselves. The signer must be the issuer's own authority.
+    /// (Registration is self-serve and permissionless, so deactivation is too —
+    /// scoped to the issuer's own account, never someone else's.)
     pub fn deactivate_issuer(ctx: Context<DeactivateIssuer>) -> Result<()> {
         let issuer = &mut ctx.accounts.issuer_account;
         issuer.active = false;
@@ -166,8 +168,11 @@ pub struct RequestAccess<'info> {
     )]
     pub requester_issuer: Account<'info, IssuerAccount>,
 
+    // init_if_needed (not init) so a user who revokes and later re-consents
+    // can land in this instruction without the contribution PDA forcing a
+    // slug rotation. All fields are unconditionally rewritten in the handler.
     #[account(
-        init,
+        init_if_needed,
         payer = requester_authority,
         space = 8 + CredentialAccount::INIT_SPACE,
         seeds = [b"credential", requester_authority.key().as_ref(), user.key().as_ref(), contribution_slug.as_bytes()],
@@ -204,9 +209,14 @@ pub struct RevokeAccess<'info> {
 
 #[derive(Accounts)]
 pub struct DeactivateIssuer<'info> {
-    pub admin: Signer<'info>,
+    pub authority: Signer<'info>,
 
-    #[account(mut)]
+    #[account(
+        mut,
+        seeds = [b"issuer", authority.key().as_ref()],
+        bump = issuer_account.bump,
+        constraint = issuer_account.authority == authority.key() @ GlurkError::Unauthorized,
+    )]
     pub issuer_account: Account<'info, IssuerAccount>,
 }
 
