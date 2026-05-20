@@ -175,7 +175,7 @@ export async function provisionApiKey(input: {
     if (!expected || input.adminSecret !== expected) {
       return {
         ok: false,
-        error: "paid tiers require admin provisioning — email founders@glurk.protocol",
+        error: "paid tiers require admin provisioning — email arnavmaurya.am@gmail.com",
       };
     }
   }

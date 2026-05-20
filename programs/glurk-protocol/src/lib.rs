@@ -109,7 +109,12 @@ pub struct RegisterIssuer<'info> {
     #[account(mut)]
     pub admin: Signer<'info>,
 
-    /// CHECK: The issuer's authority pubkey
+    /// CHECK: must equal `admin` — registration is self-serve and only the wallet that
+    /// will own the issuer PDA can register it. Without this, any wallet could squat
+    /// the issuer namespace of any other pubkey (paying rent + choosing the name).
+    #[account(
+        constraint = issuer_authority.key() == admin.key() @ GlurkError::Unauthorized,
+    )]
     pub issuer_authority: UncheckedAccount<'info>,
 
     #[account(

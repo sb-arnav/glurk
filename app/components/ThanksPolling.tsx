@@ -145,7 +145,7 @@ export default function ThanksPolling({ transactionId }: { transactionId: string
             full docs →
           </Link>
           <a
-            href={`mailto:founder@glurk.protocol?subject=Glurk Pro · ${status.email}`}
+            href={`mailto:arnavmaurya.am@gmail.com?subject=Glurk Pro · ${status.email}`}
             className="font-mono text-white/40 hover:text-white transition-colors"
           >
             email founder →
@@ -170,10 +170,10 @@ export default function ThanksPolling({ transactionId }: { transactionId: string
           it, reach out:
         </p>
         <a
-          href="mailto:founder@glurk.protocol"
+          href="mailto:arnavmaurya.am@gmail.com?subject=Glurk Pro · webhook timeout"
           className="inline-block text-[12px] font-mono text-[#7B6FF8] hover:text-white transition-colors"
         >
-          founder@glurk.protocol →
+          arnavmaurya.am@gmail.com →
         </a>
       </div>
     );

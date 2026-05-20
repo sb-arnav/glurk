@@ -183,7 +183,11 @@
           "signer": true
         },
         {
-          "name": "issuer_authority"
+          "name": "issuer_authority",
+          "docs": [
+            "will own the issuer PDA can register it. Without this, any wallet could squat",
+            "the issuer namespace of any other pubkey (paying rent + choosing the name)."
+          ]
         },
         {
           "name": "issuer_account",

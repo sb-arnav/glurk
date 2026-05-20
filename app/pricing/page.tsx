@@ -64,7 +64,7 @@ const TIERS = [
       "Custom rate limits",
       "Direct Slack with founders",
     ],
-    cta: { label: "Contact us", href: "mailto:founder@glurk.protocol?subject=Glurk Enterprise" },
+    cta: { label: "Contact us", href: "mailto:arnavmaurya.am@gmail.com?subject=Glurk Enterprise" },
     accent: "neutral" as const,
   },
 ];
@@ -188,10 +188,10 @@ export default function PricingPage() {
         <section className="mt-16 text-center">
           <p className="text-[12px] font-mono text-white/30 mb-3">Questions?</p>
           <a
-            href="mailto:founder@glurk.protocol"
+            href="mailto:arnavmaurya.am@gmail.com?subject=Glurk · question"
             className="text-[14px] text-[#7B6FF8] hover:text-white transition-colors"
           >
-            founder@glurk.protocol →
+            arnavmaurya.am@gmail.com →
           </a>
         </section>
       </main>

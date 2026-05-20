@@ -189,7 +189,11 @@ export type GlurkProtocol = {
           "signer": true
         },
         {
-          "name": "issuerAuthority"
+          "name": "issuerAuthority",
+          "docs": [
+            "will own the issuer PDA can register it. Without this, any wallet could squat",
+            "the issuer namespace of any other pubkey (paying rent + choosing the name)."
+          ]
         },
         {
           "name": "issuerAccount",

@@ -276,7 +276,7 @@ if (isCreditworthy) {
               Get free API key →
             </Link>
             <a
-              href="mailto:founder@glurk.protocol?subject=Glurk integration · Indian fintech"
+              href="mailto:arnavmaurya.am@gmail.com?subject=Glurk integration · Indian fintech"
               className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.07] transition-colors text-sm font-semibold text-white/80"
             >
               Talk to the founder →

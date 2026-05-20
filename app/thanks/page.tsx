@@ -45,7 +45,7 @@ export default async function ThanksPage({
               No checkout reference in this URL. If you just paid and didn&apos;t land
               here automatically, check your email or{" "}
               <a
-                href="mailto:founder@glurk.protocol"
+                href="mailto:arnavmaurya.am@gmail.com?subject=Glurk · checkout reference missing"
                 className="text-[#7B6FF8] hover:text-white transition-colors"
               >
                 contact us
