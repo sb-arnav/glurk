@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import PricingSignup from "@/app/components/PricingSignup";
+import { CONTACT_EMAIL, mailto } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Glurk Pricing · Free chain access. Hosted API tiers.",
@@ -64,7 +65,10 @@ const TIERS = [
       "Custom rate limits",
       "Direct Slack with founders",
     ],
-    cta: { label: "Contact us", href: "mailto:arnavmaurya.am@gmail.com?subject=Glurk Enterprise" },
+    cta: {
+      label: "Contact us",
+      href: mailto("Glurk Enterprise") ?? "/docs",
+    },
     accent: "neutral" as const,
   },
 ];
@@ -185,15 +189,17 @@ export default function PricingPage() {
           </div>
         </section>
 
-        <section className="mt-16 text-center">
-          <p className="text-[12px] font-mono text-white/30 mb-3">Questions?</p>
-          <a
-            href="mailto:arnavmaurya.am@gmail.com?subject=Glurk · question"
-            className="text-[14px] text-[#7B6FF8] hover:text-white transition-colors"
-          >
-            arnavmaurya.am@gmail.com →
-          </a>
-        </section>
+        {CONTACT_EMAIL && (
+          <section className="mt-16 text-center">
+            <p className="text-[12px] font-mono text-white/30 mb-3">Questions?</p>
+            <a
+              href={mailto("Glurk · question")}
+              className="text-[14px] text-[#7B6FF8] hover:text-white transition-colors"
+            >
+              {CONTACT_EMAIL} →
+            </a>
+          </section>
+        )}
       </main>
 
       <footer className="border-t border-white/[0.05] px-6 py-6 mt-10">

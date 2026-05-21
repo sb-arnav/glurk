@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
   }
   if (tier === "enterprise") {
     return NextResponse.json(
-      { error: "enterprise is contact-sales only — email arnavmaurya.am@gmail.com" },
+      { error: "enterprise is contact-sales only — see /pricing" },
       { status: 400 },
     );
   }

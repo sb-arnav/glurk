@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { CONTACT_EMAIL, mailto } from "@/lib/contact";
 
 type Status =
   | { kind: "polling" }
@@ -144,12 +145,14 @@ export default function ThanksPolling({ transactionId }: { transactionId: string
           >
             full docs →
           </Link>
-          <a
-            href={`mailto:arnavmaurya.am@gmail.com?subject=Glurk Pro · ${status.email}`}
-            className="font-mono text-white/40 hover:text-white transition-colors"
-          >
-            email founder →
-          </a>
+          {mailto(`Glurk Pro · ${status.email}`) && (
+            <a
+              href={mailto(`Glurk Pro · ${status.email}`)}
+              className="font-mono text-white/40 hover:text-white transition-colors"
+            >
+              email founder →
+            </a>
+          )}
         </div>
         <p className="text-[11px] text-white/30 leading-relaxed">
           Save your key now — this page is the only time it&apos;s shown in full. You can
@@ -169,12 +172,14 @@ export default function ThanksPolling({ transactionId }: { transactionId: string
           minute. We&apos;ll send you the key by email shortly. If you don&apos;t see
           it, reach out:
         </p>
-        <a
-          href="mailto:arnavmaurya.am@gmail.com?subject=Glurk Pro · webhook timeout"
-          className="inline-block text-[12px] font-mono text-[#7B6FF8] hover:text-white transition-colors"
-        >
-          arnavmaurya.am@gmail.com →
-        </a>
+        {CONTACT_EMAIL && (
+          <a
+            href={mailto("Glurk Pro · webhook timeout")}
+            className="inline-block text-[12px] font-mono text-[#7B6FF8] hover:text-white transition-colors"
+          >
+            {CONTACT_EMAIL} →
+          </a>
+        )}
       </div>
     );
   }

@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import UnderwritingDemo from "@/app/components/UnderwritingDemo";
+import { mailto } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Glurk for Indian Fintechs · Underwrite Gen Z without CIBIL",
@@ -275,12 +276,14 @@ if (isCreditworthy) {
             >
               Get free API key →
             </Link>
-            <a
-              href="mailto:arnavmaurya.am@gmail.com?subject=Glurk integration · Indian fintech"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.07] transition-colors text-sm font-semibold text-white/80"
-            >
-              Talk to the founder →
-            </a>
+            {mailto("Glurk integration · Indian fintech") && (
+              <a
+                href={mailto("Glurk integration · Indian fintech")}
+                className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.07] transition-colors text-sm font-semibold text-white/80"
+              >
+                Talk to the founder →
+              </a>
+            )}
           </div>
         </section>
       </main>

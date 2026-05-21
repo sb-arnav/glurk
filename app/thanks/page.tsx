@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import ThanksPolling from "@/app/components/ThanksPolling";
+import { mailto } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Thanks · Glurk",
@@ -42,14 +43,19 @@ export default async function ThanksPage({
         ) : (
           <div className="rounded-[24px] border border-white/[0.08] bg-white/[0.02] p-8 text-center">
             <p className="text-white/55 text-sm">
-              No checkout reference in this URL. If you just paid and didn&apos;t land
-              here automatically, check your email or{" "}
-              <a
-                href="mailto:arnavmaurya.am@gmail.com?subject=Glurk · checkout reference missing"
-                className="text-[#7B6FF8] hover:text-white transition-colors"
-              >
-                contact us
-              </a>
+              No checkout reference in this URL. If you just paid and didn&apos;t
+              land here automatically, check your email
+              {mailto("Glurk · checkout reference missing") ? (
+                <>
+                  {" "}or{" "}
+                  <a
+                    href={mailto("Glurk · checkout reference missing")}
+                    className="text-[#7B6FF8] hover:text-white transition-colors"
+                  >
+                    contact us
+                  </a>
+                </>
+              ) : null}
               .
             </p>
           </div>
