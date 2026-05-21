@@ -32,8 +32,10 @@ export async function GET(req: NextRequest) {
   try {
     return NextResponse.json(await getSerializedGlurkProfile(userPubkey));
   } catch (e: unknown) {
-    const err = e as Error;
-    console.error('credentials API error:', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('credentials API error:', e);
+    return NextResponse.json(
+      { error: 'failed to fetch credentials' },
+      { status: 500 },
+    );
   }
 }

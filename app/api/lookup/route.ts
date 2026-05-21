@@ -27,24 +27,34 @@ export async function GET(req: NextRequest) {
   if (!email) {
     return NextResponse.json({ error: 'email param required' }, { status: 400 });
   }
-
-  const { data, error } = await getSupabase()
-    .from('identity_links')
-    .select('wallet_address')
-    .eq('email', email)
-    .single();
-
-  if (error || !data) {
-    return NextResponse.json({ error: 'No wallet linked to this email' }, { status: 404 });
+  // Sanity check the shape before touching supabase. Doesn't enforce real
+  // deliverability — just rejects garbage that would never match anyway.
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return NextResponse.json({ error: 'invalid email format' }, { status: 400 });
   }
 
-  const profile = await getSerializedGlurkProfile(data.wallet_address);
+  try {
+    const { data, error } = await getSupabase()
+      .from('identity_links')
+      .select('wallet_address')
+      .eq('email', email)
+      .single();
 
-  return NextResponse.json({
-    email,
-    wallet: data.wallet_address,
-    credentials: profile.credentials,
-    glurkScore: profile.glurkScore,
-    consents: profile.consents,
-  });
+    if (error || !data) {
+      return NextResponse.json({ error: 'no wallet linked to this email' }, { status: 404 });
+    }
+
+    const profile = await getSerializedGlurkProfile(data.wallet_address);
+
+    return NextResponse.json({
+      email,
+      wallet: data.wallet_address,
+      credentials: profile.credentials,
+      glurkScore: profile.glurkScore,
+      consents: profile.consents,
+    });
+  } catch (e: unknown) {
+    console.error('lookup API error:', e);
+    return NextResponse.json({ error: 'lookup failed' }, { status: 500 });
+  }
 }
