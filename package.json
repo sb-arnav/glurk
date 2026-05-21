@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:program": "ts-mocha -p tests/tsconfig.json -t 30000 tests/glurk-protocol.ts"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.11.1",
@@ -28,12 +29,20 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/chai": "^4.3.20",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "anchor-bankrun": "^0.5.0",
+    "chai": "^4.5.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.2",
+    "mocha": "^11.7.6",
+    "solana-bankrun": "^0.4.0",
     "tailwindcss": "^4",
+    "ts-mocha": "^11.1.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

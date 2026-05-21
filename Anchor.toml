@@ -7,6 +7,11 @@ skip-lint = false
 [programs.devnet]
 glurk_protocol = "5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ"
 
+# anchor-bankrun reads programs.localnet to map .so files to program IDs in
+# the in-process test bank. Matches devnet so PDAs derive identically.
+[programs.localnet]
+glurk_protocol = "5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ"
+
 [registry]
 url = "https://api.apr.dev"
 
