@@ -3,7 +3,6 @@ import Image from "next/image";
 import { getAllIssuers } from "@/lib/issuers";
 
 const PROGRAM_ID = "5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ";
-const EXPLORER_BASE = "https://explorer.solana.com";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

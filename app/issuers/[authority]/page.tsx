@@ -158,10 +158,12 @@ export default async function IssuerDashboardPage({ params }: RouteProps) {
 
   const uniqueUsers = new Set(credentials.map((c) => c.user)).size;
   const oldestClaim = credentials.at(-1)?.timestamp ?? issuer.registeredAt;
-  const ageDays = Math.max(
-    0,
-    Math.floor((Date.now() / 1000 - issuer.registeredAt) / 86400),
-  );
+  // Server component renders once per request; Date.now() is stable in that
+  // window. react-hooks/purity flags it because it can't tell server from
+  // client — there's no hydration boundary for ageDays.
+  // eslint-disable-next-line react-hooks/purity
+  const nowSec = Math.floor(Date.now() / 1000);
+  const ageDays = Math.max(0, Math.floor((nowSec - issuer.registeredAt) / 86400));
 
   return (
     <div className="min-h-screen bg-[#0A0818] text-white">

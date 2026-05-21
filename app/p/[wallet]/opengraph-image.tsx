@@ -7,11 +7,6 @@ export const contentType = "image/png";
 export const size = { width: 1200, height: 630 };
 export const alt = "Glurk identity card";
 
-const ISSUER_NAMES: Record<string, string> = {
-  BqHeLU3efLtFuyVe3XPq6UM11o3dN4WMyVwGrtgogagT: "Staq",
-  JCpNV2vFguuNvQKcpK1Yp8xCmiyhDH7fmc5Noi25Ut4k: "GitHub",
-};
-
 const SLUG_LABELS: Record<string, string> = {
   "credit-score": "Credit Score Basics",
   stocks: "Stock Market Basics",

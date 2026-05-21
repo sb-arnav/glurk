@@ -29,9 +29,9 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
-      (session as any).provider = token.provider;
-      (session as any).githubUsername = token.githubUsername;
+      session.accessToken = token.accessToken;
+      session.provider = token.provider;
+      session.githubUsername = token.githubUsername;
       return session;
     },
   },
