@@ -48,3 +48,13 @@ next-env.d.ts
 !target/idl/glurk_protocol.json
 .env.local
 supabase/.temp/
+
+# Solana keypairs — NEVER commit private keys (program/authority/wallet)
+**/*-keypair.json
+**/*-keypair.bin
+
+# Dev/operator-only files — kept on local disk, out of the public repo
+CLAUDE.md
+AGENTS.md
+suggestion.md
+suggestions.md

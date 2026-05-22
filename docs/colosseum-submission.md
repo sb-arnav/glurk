@@ -30,8 +30,7 @@ Infrastructure
 - Example SBT: https://explorer.solana.com/address/CMcXGv5jqSujkju1v3XgCHHA4kb8RwyGXaBhnoP18Gqh?cluster=devnet
 
 ## Team
-- Arnav (SlayerBlade) — Protocol design, TypeScript SDK, consumer app, pitch
-- the team — Anchor program, on-chain architecture
+- Arnav (SlayerBlade) — Protocol design, Anchor program & on-chain architecture, TypeScript SDK, consumer app, pitch
 
 ## What makes this different
 - 162 projects have tried education on Solana across 5 Colosseum hackathons. Zero won. They built apps. We built infrastructure.

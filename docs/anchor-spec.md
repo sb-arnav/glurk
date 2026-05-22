@@ -1,6 +1,5 @@
 # Glurk Protocol — Technical Spec
 
-## For: the team (Anchor Program Development)
 ## Date: March 31, 2026
 
 ---
