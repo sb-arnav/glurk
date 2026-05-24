@@ -152,6 +152,15 @@ async function mintSBT(
 }
 
 export async function POST(req: NextRequest) {
+  // Admin-only: this signs on-chain issuance with STAQ_AUTHORITY_SECRET_KEY for an
+  // arbitrary wallet. Without this gate anyone could curl it to forge the full Staq
+  // credential set onto any wallet. Same bearer secret as /api/issue-credential.
+  const expectedSecret = process.env.REGISTER_ISSUER_SECRET;
+  const token = req.headers.get('authorization')?.replace('Bearer ', '');
+  if (!expectedSecret || token !== expectedSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const targetWallet = body.wallet || DEMO_WALLET;
 

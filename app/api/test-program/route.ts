@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { Connection, Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
 import * as anchor from '@coral-xyz/anchor';
 import fs from 'fs';
@@ -8,7 +8,15 @@ export const dynamic = 'force-dynamic';
 
 const PROGRAM_ID = new PublicKey('5FVzW7QwuETtRnBfXom3b2Rxd2R6weo1285Fywg66fCQ');
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  // Admin-only debug endpoint: it signs real (devnet) txs with STAQ_AUTHORITY_SECRET_KEY
+  // and leaks the authority pubkey + balance. Gate it behind the issuer secret.
+  const expectedSecret = process.env.REGISTER_ISSUER_SECRET;
+  const token = req.headers.get('authorization')?.replace('Bearer ', '');
+  if (!expectedSecret || token !== expectedSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const results: string[] = [];
 
   try {
