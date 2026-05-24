@@ -50,17 +50,57 @@ export default function ConnectSolanaPage() {
     }
   }
 
+  // Prove ownership of the wallet by signing a message with Phantom. Mirrors the
+  // signing flow used by IssuerTemplateManager; the server verifies it via
+  // verifyAuthMessage. A wallet you don't control can't produce a valid signature.
+  async function signClaim(
+    walletAddr: string,
+  ): Promise<{ message: string; signature: string } | null> {
+    const sol = (
+      window as unknown as {
+        solana?: {
+          isPhantom?: boolean;
+          signMessage?: (
+            msg: Uint8Array,
+            enc: string,
+          ) => Promise<{ signature: Uint8Array | number[] }>;
+        };
+      }
+    ).solana;
+    if (!sol?.isPhantom || !sol.signMessage) {
+      setError("Connect Phantom to claim a credential for your own wallet.");
+      return null;
+    }
+    const message = `glurk:solana-credential:${walletAddr}:${Math.floor(Date.now() / 1000)}`;
+    try {
+      const resp = await sol.signMessage(new TextEncoder().encode(message), "utf8");
+      const sigBytes =
+        resp.signature instanceof Uint8Array ? resp.signature : new Uint8Array(resp.signature);
+      return { message, signature: Buffer.from(sigBytes).toString("base64") };
+    } catch {
+      setError("Signature request cancelled.");
+      return null;
+    }
+  }
+
   async function claimCredential() {
     if (!wallet) return;
     setClaiming(true);
     setError(null);
     try {
+      const auth = await signClaim(wallet);
+      if (!auth) {
+        setClaiming(false);
+        return;
+      }
       const res = await fetch("/api/solana-credential", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           wallet,
           email: session?.user?.email,
+          message: auth.message,
+          signature: auth.signature,
         }),
       });
       const data = await res.json();
@@ -248,7 +288,7 @@ export default function ConnectSolanaPage() {
                 </button>
               </div>
 
-              <p className="text-[11px] text-white/15 mt-4">Reads from Solana mainnet. No signatures required.</p>
+              <p className="text-[11px] text-white/15 mt-4">Reads mainnet activity. You sign with Phantom to prove you own the wallet.</p>
             </div>
           )}
         </div>

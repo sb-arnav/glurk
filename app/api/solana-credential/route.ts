@@ -26,6 +26,7 @@ import {
   GLURK_SYSTEM_PROGRAM_ID,
   GLURK_PROGRAM_ID,
 } from '@/lib/glurk-program';
+import { verifyAuthMessage } from '@/lib/wallet-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,7 +71,7 @@ function calcTierAndScore(stats: {
  */
 export async function POST(req: NextRequest) {
   try {
-    const { wallet, email } = await req.json();
+    const { wallet, email, message, signature } = await req.json();
 
     if (!wallet) {
       return NextResponse.json({ error: 'wallet required' }, { status: 400 });
@@ -81,6 +82,24 @@ export async function POST(req: NextRequest) {
       userPubkey = new PublicKey(wallet);
     } catch {
       return NextResponse.json({ error: 'Invalid wallet address' }, { status: 400 });
+    }
+
+    // Require proof the caller controls this wallet before issuing a credential
+    // about it and linking an email to it. Without this, anyone could mint a
+    // forged credential to any wallet (and claim its on-chain reputation under
+    // their own email). The wallet is derived from the signed message, so a
+    // pasted address the caller doesn't own cannot produce a valid signature.
+    const auth = verifyAuthMessage({
+      message: message ?? '',
+      signature: signature ?? '',
+      expectedPurpose: 'solana-credential',
+      expectedWallet: wallet,
+    });
+    if (!auth.ok) {
+      return NextResponse.json(
+        { error: auth.error || 'wallet ownership signature required' },
+        { status: 401 },
+      );
     }
 
     const mainnetConn = new Connection('https://api.mainnet-beta.solana.com', 'confirmed');
