@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   const supabase = getServiceClient();
   const { data: checkout, error } = await supabase
     .from("paddle_checkouts")
-    .select("status, api_key_id, email, tier")
+    .select("status, api_key_id, email, tier, completed_at")
     .eq("paddle_transaction_id", txn)
     .maybeSingle();
 
@@ -43,6 +43,24 @@ export async function GET(req: NextRequest) {
   if (checkout.status !== "completed" || !checkout.api_key_id) {
     return NextResponse.json({
       status: checkout.status,
+      email: checkout.email,
+      tier: checkout.tier,
+    });
+  }
+
+  // The plaintext key is only returned for a short window after provisioning.
+  // The /thanks page polls within seconds of checkout, so a legitimate buyer is
+  // always inside it. This bounds exposure: a Paddle transaction id can leak via
+  // browser history / referrer headers, and previously ANY holder of the txn id
+  // could fetch the key indefinitely. Outside the window we withhold the key and
+  // the page falls through to its "contact support" state.
+  const KEY_RETRIEVAL_WINDOW_MS = 15 * 60 * 1000;
+  const completedAtMs = checkout.completed_at
+    ? new Date(checkout.completed_at).getTime()
+    : 0;
+  if (!completedAtMs || Date.now() - completedAtMs > KEY_RETRIEVAL_WINDOW_MS) {
+    return NextResponse.json({
+      status: "completed",
       email: checkout.email,
       tier: checkout.tier,
     });
