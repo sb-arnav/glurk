@@ -73,8 +73,19 @@ async function handleEvent(event: PaddleSubscriptionEvent) {
   // (Pro). When Enterprise self-serve lands, this becomes a real lookup.
   const proPriceId = process.env.NEXT_PUBLIC_PADDLE_PRO_PRICE_ID ?? "";
   const priceId = data.items?.[0]?.price?.id ?? "";
-  const tier: Tier =
-    priceId && proPriceId && priceId === proPriceId ? "pro" : "pro";
+  // Map price -> tier. When the pro price id is configured, anything that isn't
+  // the pro price must NOT receive pro quota (billing-bypass guard). If the env
+  // var is unset we can't distinguish, so fall back to the historical 'pro'
+  // rather than downgrade a real payer — but log it loudly.
+  let tier: Tier;
+  if (!proPriceId) {
+    console.warn(
+      "[paddle webhook] NEXT_PUBLIC_PADDLE_PRO_PRICE_ID not set — defaulting to 'pro'. Set it to enable strict price->tier mapping.",
+    );
+    tier = "pro";
+  } else {
+    tier = priceId === proPriceId ? "pro" : "free";
+  }
 
   const supabase = getServiceClient();
 

@@ -157,6 +157,15 @@ export async function GET(req: NextRequest) {
 
 // ── POST ─────────────────────────────────────────────────────────────
 export async function POST(req: NextRequest) {
+  // Admin-only: setup/attest sign on-chain with the SAS authority key for an
+  // arbitrary wallet. Without this gate anyone could forge attestations / burn
+  // authority SOL. No frontend caller (profile only reads via GET ?wallet=).
+  const expectedSecret = process.env.REGISTER_ISSUER_SECRET;
+  const token = req.headers.get('authorization')?.replace('Bearer ', '');
+  if (!expectedSecret || token !== expectedSecret) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const action = body.action as string;
 
