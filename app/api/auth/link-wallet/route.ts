@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { createClient } from '@supabase/supabase-js';
 import { PublicKey } from '@solana/web3.js';
 import { normalizeEmail } from '@/lib/glurk-profile';
+import { verifyAuthMessage } from '@/lib/wallet-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,7 @@ export async function POST(req: NextRequest) {
 
   const email = normalizeEmail(session.user.email);
 
-  const { wallet } = await req.json();
+  const { wallet, message, signature } = await req.json();
   if (!wallet) {
     return NextResponse.json({ error: 'wallet required' }, { status: 400 });
   }
@@ -31,6 +32,22 @@ export async function POST(req: NextRequest) {
     new PublicKey(wallet);
   } catch {
     return NextResponse.json({ error: 'Invalid wallet address' }, { status: 400 });
+  }
+
+  // Email is proven by the session; the wallet must be proven by a signature so a
+  // user can't bind their email to a wallet (and its on-chain reputation) they
+  // don't control. Wallet is derived from the signed message.
+  const auth = verifyAuthMessage({
+    message: message ?? '',
+    signature: signature ?? '',
+    expectedPurpose: 'link-wallet',
+    expectedWallet: wallet,
+  });
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: auth.error || 'wallet ownership signature required' },
+      { status: 401 },
+    );
   }
 
   const { error } = await getSupabase()

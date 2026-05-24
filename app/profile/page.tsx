@@ -350,10 +350,29 @@ export default function ProfilePage() {
     if (!session?.user?.email) return;
     setLinkStatus("linking");
     try {
+      // Prove ownership of the wallet before binding it to the session email.
+      const sol = window.solana as
+        | (typeof window.solana & {
+            signMessage?: (
+              msg: Uint8Array,
+              enc: string,
+            ) => Promise<{ signature: Uint8Array | number[] }>;
+          })
+        | undefined;
+      if (!sol?.signMessage) {
+        setLinkStatus("error");
+        return;
+      }
+      const message = `glurk:link-wallet:${addr}:${Math.floor(Date.now() / 1000)}`;
+      const resp = await sol.signMessage(new TextEncoder().encode(message), "utf8");
+      const sigBytes =
+        resp.signature instanceof Uint8Array ? resp.signature : new Uint8Array(resp.signature);
+      const signature = Buffer.from(sigBytes).toString("base64");
+
       const res = await fetch("/api/auth/link-wallet", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ wallet: addr }),
+        body: JSON.stringify({ wallet: addr, message, signature }),
       });
       if (!res.ok) throw new Error("Link failed");
       setLinkStatus("linked");
