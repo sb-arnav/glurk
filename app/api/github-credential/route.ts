@@ -118,46 +118,36 @@ export async function POST(req: NextRequest) {
     const userSeed = Buffer.from(`github:${githubUsername}`);
     const [userPda] = PublicKey.findProgramAddressSync([userSeed], GLURK_PROGRAM_ID);
 
-    // For the credential, we need a real wallet address.
-    // If user has linked an email, use that wallet. Otherwise create a derived one.
-    let userWallet: PublicKey;
+    // Credentials must be issued to a wallet the user actually controls. This used
+    // to derive a placeholder wallet from the (public) GitHub username via
+    // Keypair.fromSeed(username): that private key is publicly computable, and
+    // distinct usernames sharing a 32-byte prefix collided onto the same wallet.
+    // Require a linked wallet instead — linking now requires an ownership signature.
     const userEmail = session?.user?.email;
-
-    if (userEmail && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY,
+    if (!userEmail || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return NextResponse.json(
+        { error: 'Sign in and link a Solana wallet first (open /profile and connect Phantom) to claim a GitHub credential.' },
+        { status: 400 },
       );
-      const { data: link } = await supabase
-        .from('identity_links')
-        .select('wallet_address')
-        .eq('email', userEmail.toLowerCase().trim())
-        .maybeSingle();
-
-      if (link?.wallet_address) {
-        userWallet = new PublicKey(link.wallet_address);
-      } else {
-        // Generate a deterministic keypair for this GitHub user
-        const seed = Buffer.alloc(32);
-        const hash = Buffer.from(githubUsername);
-        hash.copy(seed, 0, 0, Math.min(32, hash.length));
-        userWallet = Keypair.fromSeed(seed).publicKey;
-
-        // Auto-link this wallet to their email
-        await supabase
-          .from('identity_links')
-          .upsert(
-            { email: userEmail.toLowerCase().trim(), wallet_address: userWallet.toBase58() },
-            { onConflict: 'email' },
-          );
-      }
-    } else {
-      // No email — derive a wallet from the username
-      const seed = Buffer.alloc(32);
-      const hash = Buffer.from(githubUsername);
-      hash.copy(seed, 0, 0, Math.min(32, hash.length));
-      userWallet = Keypair.fromSeed(seed).publicKey;
     }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    );
+    const { data: link } = await supabase
+      .from('identity_links')
+      .select('wallet_address')
+      .eq('email', userEmail.toLowerCase().trim())
+      .maybeSingle();
+
+    if (!link?.wallet_address) {
+      return NextResponse.json(
+        { error: 'Link a Solana wallet first (open /profile and connect Phantom) — a credential must be issued to a wallet you control.' },
+        { status: 400 },
+      );
+    }
+    const userWallet = new PublicKey(link.wallet_address);
 
     const slug = 'github-reputation';
     const connection = new Connection('https://api.devnet.solana.com', {
