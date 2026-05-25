@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:program": "ts-mocha -p tests/tsconfig.json -t 30000 tests/glurk-protocol.ts"
+    "pretest:program": "cd programs/glurk-protocol && cargo build-sbf",
+    "test:program": "BPF_OUT_DIR=programs/glurk-protocol/target/deploy ts-mocha -p tests/tsconfig.json -t 60000 tests/glurk-protocol.ts"
   },
   "dependencies": {
     "@auth/supabase-adapter": "^1.11.1",
@@ -44,5 +45,10 @@
     "ts-mocha": "^11.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5"
+  },
+  "overrides": {
+    "anchor-bankrun": {
+      "@coral-xyz/anchor": "$@coral-xyz/anchor"
+    }
   }
 }
