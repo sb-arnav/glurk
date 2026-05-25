@@ -12,7 +12,9 @@ export type Tier = keyof typeof TIER_QUOTAS;
 
 export interface ApiKeyRecord {
   id: string;
-  key: string;
+  key: string | null;
+  key_hash: string;
+  key_preview: string | null;
   owner_email: string;
   tier: Tier;
   monthly_quota: number;
@@ -49,6 +51,25 @@ export function generateApiKey(): string {
   const bytes = crypto.randomBytes(32);
   const b64 = bytes.toString("base64url");
   return `glk_${b64}`;
+}
+
+/**
+ * Hash an API key for lookup/storage. Keys are stored as this SHA-256 hex digest
+ * (column api_keys.key_hash), never as plaintext. Must stay byte-for-byte
+ * identical to the SQL backfill: encode(digest(key,'sha256'),'hex').
+ */
+export function hashApiKey(rawKey: string): string {
+  return crypto.createHash("sha256").update(rawKey).digest("hex");
+}
+
+/**
+ * Non-secret display preview ("glk_ABCD…WXYZ") stored alongside the hash so the
+ * owner can recognize their key without us retaining the plaintext. Matches the
+ * SQL backfill: left(key,8) || '…' || right(key,4).
+ */
+export function keyPreview(rawKey: string): string {
+  if (rawKey.length < 16) return "glk_***";
+  return `${rawKey.slice(0, 8)}…${rawKey.slice(-4)}`;
 }
 
 /**
@@ -95,7 +116,7 @@ export async function consumeApiKey(rawKey: string): Promise<CheckKeyResult> {
   const { data, error } = await supabase
     .from("api_keys")
     .select("*")
-    .eq("key", rawKey)
+    .eq("key_hash", hashApiKey(rawKey))
     .maybeSingle();
 
   if (error) {
@@ -205,7 +226,8 @@ export async function provisionApiKey(input: {
 
   const key = generateApiKey();
   const { error } = await supabase.from("api_keys").insert({
-    key,
+    key_hash: hashApiKey(key),
+    key_preview: keyPreview(key),
     owner_email: input.email.toLowerCase().trim(),
     tier: input.tier,
     monthly_quota: TIER_QUOTAS[input.tier],

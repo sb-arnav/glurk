@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-import { generateApiKey, TIER_QUOTAS, type Tier } from "@/lib/api-keys";
+import { generateApiKey, hashApiKey, keyPreview, TIER_QUOTAS, type Tier } from "@/lib/api-keys";
 import { verifyPaddleSignature, type PaddleSubscriptionEvent } from "@/lib/paddle";
 
 export const dynamic = "force-dynamic";
@@ -120,7 +120,7 @@ async function provisionFromSubscription(
   // just mark the pending checkout completed and return.
   const { data: existing } = await supabase
     .from("api_keys")
-    .select("id, key, owner_email")
+    .select("id, owner_email")
     .eq("paddle_subscription_id", subscriptionId)
     .maybeSingle();
 
@@ -167,7 +167,8 @@ async function provisionFromSubscription(
   const { data: inserted, error } = await supabase
     .from("api_keys")
     .insert({
-      key: newKey,
+      key_hash: hashApiKey(newKey),
+      key_preview: keyPreview(newKey),
       owner_email: email.toLowerCase().trim(),
       tier,
       monthly_quota: TIER_QUOTAS[tier],
@@ -185,12 +186,18 @@ async function provisionFromSubscription(
   }
 
   if (checkoutId) {
+    const now = new Date();
     await supabase
       .from("paddle_checkouts")
       .update({
         status: "completed",
         api_key_id: inserted.id,
-        completed_at: new Date().toISOString(),
+        completed_at: now.toISOString(),
+        // Transient one-time plaintext delivery to /thanks. The key is never
+        // stored plaintext in api_keys; checkout-status returns this once then
+        // clears it. Bounded to 15 min for the buyer's polling window.
+        pending_key: newKey,
+        pending_key_expires_at: new Date(now.getTime() + 15 * 60 * 1000).toISOString(),
       })
       .eq("id", checkoutId);
   }

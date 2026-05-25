@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { readApiKey, type ApiKeyRecord } from '@/lib/api-keys';
+import { readApiKey, hashApiKey, type ApiKeyRecord } from '@/lib/api-keys';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,12 +58,6 @@ interface InfoError {
   error: string;
 }
 
-function maskKey(key: string): string {
-  // glk_ABCDEFGH...WXYZ — show provenance + last 4 for owner recognition.
-  if (key.length < 16) return 'glk_***';
-  return `${key.slice(0, 8)}…${key.slice(-4)}`;
-}
-
 function maskEmail(email: string): string {
   const [local, domain] = email.split('@');
   if (!local || !domain) return '***';
@@ -108,7 +102,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase
     .from('api_keys')
     .select('*')
-    .eq('key', key)
+    .eq('key_hash', hashApiKey(key))
     .maybeSingle();
 
   if (error) {
@@ -135,7 +129,7 @@ export async function GET(req: NextRequest) {
 
   const body: InfoResponse = {
     ok: true,
-    keyPreview: maskKey(record.key),
+    keyPreview: record.key_preview ?? 'glk_***',
     emailMasked: maskEmail(record.owner_email),
     tier: record.tier,
     active: !record.deactivated_at,

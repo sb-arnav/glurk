@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
   const supabase = getServiceClient();
   const { data: checkout, error } = await supabase
     .from("paddle_checkouts")
-    .select("status, api_key_id, email, tier, completed_at")
+    .select("status, api_key_id, email, tier, completed_at, pending_key, pending_key_expires_at")
     .eq("paddle_transaction_id", txn)
     .maybeSingle();
 
@@ -48,39 +48,44 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // The plaintext key is only returned for a short window after provisioning.
-  // The /thanks page polls within seconds of checkout, so a legitimate buyer is
-  // always inside it. This bounds exposure: a Paddle transaction id can leak via
-  // browser history / referrer headers, and previously ANY holder of the txn id
-  // could fetch the key indefinitely. Outside the window we withhold the key and
-  // the page falls through to its "contact support" state.
-  const KEY_RETRIEVAL_WINDOW_MS = 15 * 60 * 1000;
-  const completedAtMs = checkout.completed_at
-    ? new Date(checkout.completed_at).getTime()
-    : 0;
-  if (!completedAtMs || Date.now() - completedAtMs > KEY_RETRIEVAL_WINDOW_MS) {
-    return NextResponse.json({
-      status: "completed",
-      email: checkout.email,
-      tier: checkout.tier,
-    });
-  }
-
-  const { data: apiKey, error: keyError } = await supabase
+  // Non-secret tier/quota for the success page (safe to read repeatedly).
+  const { data: apiKey } = await supabase
     .from("api_keys")
-    .select("key, tier, monthly_quota")
+    .select("tier, monthly_quota")
     .eq("id", checkout.api_key_id)
     .maybeSingle();
 
-  if (keyError || !apiKey) {
-    return NextResponse.json({ status: "completed" });
+  // The plaintext key lives ONLY in the transient pending_key on this checkout
+  // row — api_keys stores a hash, never plaintext. It is returned exactly once,
+  // within the webhook-set expiry window, then cleared. The /thanks page polls
+  // within seconds of checkout so a legitimate buyer is always inside the
+  // window; outside it (or after the one read) we withhold the key and the page
+  // falls through to its "contact support" state. A leaked txn id can no longer
+  // fetch the key indefinitely.
+  const expired =
+    !checkout.pending_key_expires_at ||
+    new Date(checkout.pending_key_expires_at).getTime() < Date.now();
+
+  if (!checkout.pending_key || expired) {
+    return NextResponse.json({
+      status: "completed",
+      email: checkout.email,
+      tier: apiKey?.tier ?? checkout.tier,
+    });
   }
+
+  const plaintextKey = checkout.pending_key;
+  // One-time: clear it so the same txn id can't fetch the key again.
+  await supabase
+    .from("paddle_checkouts")
+    .update({ pending_key: null })
+    .eq("paddle_transaction_id", txn);
 
   return NextResponse.json({
     status: "completed",
     email: checkout.email,
-    tier: apiKey.tier,
-    monthlyQuota: apiKey.monthly_quota,
-    key: apiKey.key,
+    tier: apiKey?.tier ?? checkout.tier,
+    monthlyQuota: apiKey?.monthly_quota,
+    key: plaintextKey,
   });
 }
