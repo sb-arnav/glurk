@@ -29,6 +29,7 @@ import {
   SOLANA_ATTESTATION_SERVICE_PROGRAM_ADDRESS,
 } from 'sas-lib';
 import type { Address } from '@solana/addresses';
+import { secureCompare } from '@/lib/secure-compare';
 
 export const dynamic = 'force-dynamic';
 
@@ -162,7 +163,7 @@ export async function POST(req: NextRequest) {
   // authority SOL. No frontend caller (profile only reads via GET ?wallet=).
   const expectedSecret = process.env.REGISTER_ISSUER_SECRET;
   const token = req.headers.get('authorization')?.replace('Bearer ', '');
-  if (!expectedSecret || token !== expectedSecret) {
+  if (!expectedSecret || !secureCompare(token, expectedSecret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

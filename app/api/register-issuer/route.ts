@@ -7,6 +7,7 @@ import {
   getGlurkConnection,
   GLURK_SYSTEM_PROGRAM_ID,
 } from '@/lib/glurk-program';
+import { secureCompare } from '@/lib/secure-compare';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
     const { issuerWallet, name, adminSecret } = await req.json();
 
     const expectedSecret = process.env.REGISTER_ISSUER_SECRET;
-    if (!expectedSecret || adminSecret !== expectedSecret) {
+    if (!expectedSecret || !secureCompare(adminSecret, expectedSecret)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

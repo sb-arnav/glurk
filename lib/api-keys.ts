@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
+import { secureCompare } from "./secure-compare";
 
 export const TIER_QUOTAS = {
   free: 1_000,
@@ -172,7 +173,7 @@ export async function provisionApiKey(input: {
 
   if (input.tier !== "free") {
     const expected = process.env.GLURK_ADMIN_SECRET;
-    if (!expected || input.adminSecret !== expected) {
+    if (!expected || !secureCompare(input.adminSecret, expected)) {
       return {
         ok: false,
         error: "paid tiers require admin provisioning — contact the team",

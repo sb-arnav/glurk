@@ -36,6 +36,7 @@ import {
 import * as anchor from '@coral-xyz/anchor';
 import fs from 'fs';
 import path from 'path';
+import { secureCompare } from '@/lib/secure-compare';
 
 export const dynamic = 'force-dynamic';
 
@@ -157,7 +158,7 @@ export async function POST(req: NextRequest) {
   // credential set onto any wallet. Same bearer secret as /api/issue-credential.
   const expectedSecret = process.env.REGISTER_ISSUER_SECRET;
   const token = req.headers.get('authorization')?.replace('Bearer ', '');
-  if (!expectedSecret || token !== expectedSecret) {
+  if (!expectedSecret || !secureCompare(token, expectedSecret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

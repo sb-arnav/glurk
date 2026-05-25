@@ -27,6 +27,7 @@ import {
   GLURK_PROGRAM_ID,
 } from '@/lib/glurk-program';
 import { createClient } from '@supabase/supabase-js';
+import { secureCompare } from '@/lib/secure-compare';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,7 +56,7 @@ export async function POST(req: NextRequest) {
     const authHeader = req.headers.get('authorization');
     const token = authHeader?.replace('Bearer ', '');
     const expectedSecret = process.env.REGISTER_ISSUER_SECRET;
-    if (!expectedSecret || token !== expectedSecret) {
+    if (!expectedSecret || !secureCompare(token, expectedSecret)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 

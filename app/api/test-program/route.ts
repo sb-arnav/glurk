@@ -3,6 +3,7 @@ import { Connection, Keypair, PublicKey, SystemProgram } from '@solana/web3.js';
 import * as anchor from '@coral-xyz/anchor';
 import fs from 'fs';
 import path from 'path';
+import { secureCompare } from '@/lib/secure-compare';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
   // and leaks the authority pubkey + balance. Gate it behind the issuer secret.
   const expectedSecret = process.env.REGISTER_ISSUER_SECRET;
   const token = req.headers.get('authorization')?.replace('Bearer ', '');
-  if (!expectedSecret || token !== expectedSecret) {
+  if (!expectedSecret || !secureCompare(token, expectedSecret)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
