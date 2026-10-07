@@ -14,6 +14,10 @@ export const dynamic = 'force-dynamic';
 
 const ICON_URL = 'https://glurk.slayerblade.site/logo.png';
 
+// Mirror the limits in /api/consent (chain-side max_len on CredentialAccount).
+const MAX_SLUG_LEN = 64;
+const ALLOWED_TIERS = new Set(['platinum', 'gold', 'silver', 'bronze']);
+
 const BLINKS_HEADERS: Record<string, string> = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
@@ -62,12 +66,40 @@ export async function POST(req: NextRequest) {
     const app = searchParams.get('app') || 'Unknown App';
     const contributeSlug = searchParams.get('contribute_slug') || 'general-data';
     const contributeTier = searchParams.get('contribute_tier') || 'bronze';
-    const contributeScore = parseInt(searchParams.get('contribute_score') || '75', 10);
+    const contributeScoreRaw = searchParams.get('contribute_score') || '75';
+    const contributeScore = /^\d{1,3}$/.test(contributeScoreRaw) ? Number(contributeScoreRaw) : NaN;
 
-    const body = await req.json();
-    const userWallet = body.account;
+    if (!Number.isInteger(contributeScore) || contributeScore < 0 || contributeScore > 100) {
+      return NextResponse.json(
+        { message: 'Invalid contribute_score (integer 0-100)' },
+        { status: 400, headers: BLINKS_HEADERS },
+      );
+    }
+    if (!ALLOWED_TIERS.has(contributeTier)) {
+      return NextResponse.json(
+        { message: 'Invalid contribute_tier' },
+        { status: 400, headers: BLINKS_HEADERS },
+      );
+    }
+    if (!contributeSlug || Buffer.byteLength(contributeSlug, 'utf8') > MAX_SLUG_LEN) {
+      return NextResponse.json(
+        { message: `Invalid contribute_slug (max ${MAX_SLUG_LEN} bytes)` },
+        { status: 400, headers: BLINKS_HEADERS },
+      );
+    }
 
-    if (!userWallet) {
+    let body: { account?: unknown };
+    try {
+      body = await req.json();
+    } catch {
+      return NextResponse.json(
+        { message: 'Invalid JSON body' },
+        { status: 400, headers: BLINKS_HEADERS },
+      );
+    }
+    const userWallet = body?.account;
+
+    if (typeof userWallet !== 'string' || !userWallet) {
       return NextResponse.json(
         { message: 'Missing account in request body' },
         { status: 400, headers: BLINKS_HEADERS },
@@ -97,7 +129,12 @@ export async function POST(req: NextRequest) {
       connection.getAccountInfo(contributionPda),
     ]);
 
-    if (existingConsent && existingContribution) {
+    // ConsentAccount layout: 8 discriminator + 32 user + 32 requester + 8 granted_at + 1 active.
+    // A revoked consent must fall through so the user can re-grant.
+    const consentIsActive =
+      !!existingConsent && existingConsent.data.length >= 81 && existingConsent.data[80] === 1;
+
+    if (consentIsActive && existingContribution) {
       return NextResponse.json(
         { message: `You have already granted access to ${app}.` },
         { headers: BLINKS_HEADERS },
@@ -135,10 +172,9 @@ export async function POST(req: NextRequest) {
       { headers: BLINKS_HEADERS },
     );
   } catch (e: unknown) {
-    const err = e as Error;
-    console.error('Blink consent action error:', err.message);
+    console.error('Blink consent action error:', e);
     return NextResponse.json(
-      { message: err.message || 'Internal server error' },
+      { message: 'Internal server error' },
       { status: 500, headers: BLINKS_HEADERS },
     );
   }
