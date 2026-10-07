@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { provisionApiKey, type Tier } from '@/lib/api-keys';
+import { clientIpHash, rateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,6 +25,15 @@ const VALID_TIERS = new Set<Tier>(['free', 'pro', 'enterprise']);
  * the user sees it.
  */
 export async function POST(req: NextRequest) {
+  // Cap key minting per IP (3 / 24h) so the free tier can't be farmed with
+  // throwaway emails.
+  if (!(await rateLimit(`keys-create:${clientIpHash(req)}`, 86_400, 3))) {
+    return NextResponse.json(
+      { error: 'too many key requests from this network — try again tomorrow' },
+      { status: 429, headers: { 'Retry-After': '86400' } },
+    );
+  }
+
   let body: unknown;
   try {
     body = await req.json();

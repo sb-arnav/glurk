@@ -3,6 +3,7 @@ import { PublicKey } from '@solana/web3.js';
 import { getSerializedGlurkProfile, normalizeEmail } from '@/lib/glurk-profile';
 import { createClient } from '@supabase/supabase-js';
 import { consumeApiKey, readApiKey, TIER_QUOTAS } from '@/lib/api-keys';
+import { clientIpHash, rateLimit } from '@/lib/rate-limit';
 import {
   FIXTURE_ORDER,
   isTestWallet,
@@ -22,10 +23,10 @@ const BASE_HEADERS: Record<string, string> = {
   'Cache-Control': 's-maxage=30, stale-while-revalidate=120',
 };
 
-// Free anonymous tier — gentle ceiling baked into the cache headers
-// since we don't have edge rate limiting yet. Pro keys get higher
-// monthly quotas tracked in Postgres.
-const ANONYMOUS_TIER_QUOTA = 100; // signals soft ceiling; actual enforcement is via cache + chain RPC throttle
+// Free anonymous tier — enforced per IP via lib/rate-limit (Postgres-backed).
+// Keyed callers get monthly quotas tracked in Postgres instead.
+const ANONYMOUS_TIER_QUOTA = 100; // per day per IP
+const ANONYMOUS_PER_MINUTE = 20;
 
 export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: BASE_HEADERS });
@@ -114,6 +115,29 @@ export async function GET(req: NextRequest) {
   const wallet = req.nextUrl.searchParams.get('wallet');
   const email = req.nextUrl.searchParams.get('email');
 
+  // Anonymous callers: hard per-IP limits (per-minute burst + daily quota).
+  if (!apiKey) {
+    const ip = clientIpHash(req);
+    const allowed =
+      (await rateLimit(`check-min:${ip}`, 60, ANONYMOUS_PER_MINUTE)) &&
+      (await rateLimit(`check-day:${ip}`, 86_400, ANONYMOUS_TIER_QUOTA));
+    if (!allowed) {
+      const err: CheckError = {
+        ok: false,
+        error: 'anonymous rate limit exceeded — use an API key for higher limits',
+      };
+      return NextResponse.json(err, {
+        status: 429,
+        headers: rateHeaders({
+          'X-Glurk-Tier': tier,
+          'X-Glurk-Quota-Remaining': '0',
+          'Retry-After': '60',
+          'Cache-Control': 'no-store',
+        }),
+      });
+    }
+  }
+
   const responseHeaders = rateHeaders({
     'X-Glurk-Tier': tier,
     'X-Glurk-Quota-Total': String(quotaTotal),
@@ -127,6 +151,12 @@ export async function GET(req: NextRequest) {
       error: 'wallet or email query param required',
     };
     return NextResponse.json(err, { status: 400, headers: responseHeaders });
+  }
+
+  // Email -> wallet resolution is PII (identity_links); keyed callers only.
+  if (email && !wallet && !apiKey) {
+    const err: CheckError = { ok: false, error: 'email lookups require an API key' };
+    return NextResponse.json(err, { status: 401, headers: responseHeaders });
   }
 
   // ─── Test mode: deterministic fixtures (no chain read) ───
@@ -212,7 +242,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(body, { headers: responseHeaders });
   } catch (e) {
-    const err: CheckError = { ok: false, error: (e as Error).message };
+    console.error('[v1/check] error:', e);
+    const err: CheckError = { ok: false, error: 'credential lookup failed' };
     return NextResponse.json(err, { status: 500, headers: responseHeaders });
   }
 }
