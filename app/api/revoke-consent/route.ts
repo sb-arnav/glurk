@@ -5,6 +5,7 @@ import {
   findConsentPda,
   getGlurkConnection,
 } from '@/lib/glurk-program';
+import { verifyAuthMessage } from '@/lib/wallet-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,7 +23,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid JSON body' }, { status: 400 });
   }
 
-  const { userWallet, requesterWallet } = (payload ?? {}) as {
+  const { userWallet, requesterWallet, message, signature } = (payload ?? {}) as {
+    message?: unknown;
+    signature?: unknown;
     userWallet?: unknown;
     requesterWallet?: unknown;
   };
@@ -32,6 +35,20 @@ export async function POST(req: NextRequest) {
   }
   if (typeof requesterWallet !== 'string' || !requesterWallet) {
     return NextResponse.json({ error: 'requesterWallet (string) required' }, { status: 400 });
+  }
+
+  // Wallet-ownership proof: `glurk:revoke-consent:<wallet>:<ts>` signed by userWallet.
+  const auth = verifyAuthMessage({
+    message: typeof message === 'string' ? message : '',
+    signature: typeof signature === 'string' ? signature : '',
+    expectedPurpose: 'revoke-consent',
+    expectedWallet: userWallet,
+  });
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: 'wallet ownership signature required' },
+      { status: 401 },
+    );
   }
 
   let user: PublicKey;

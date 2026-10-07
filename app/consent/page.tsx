@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { Connection, Transaction, PublicKey } from "@solana/web3.js";
+import { signAuthMessage } from "@/lib/sign-auth-message";
 
 const RPC_URL = "https://api.devnet.solana.com";
 const EXPLORER_BASE = "https://explorer.solana.com/tx";
@@ -144,12 +145,15 @@ function ConsentContent() {
     setConsent({ status: "building" });
 
     try {
-      // 1. Build partial tx server-side
+      // 1. Prove wallet ownership, then build partial tx server-side
+      const userWallet = wallet.publicKey.toBase58();
+      const proof = await signAuthMessage("consent", userWallet);
       const res = await fetch("/api/consent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userWallet: wallet.publicKey.toBase58(),
+          userWallet,
+          ...proof,
           contributionSlug,
           contributionTier,
           contributionScore: 75,

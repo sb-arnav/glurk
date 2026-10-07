@@ -7,6 +7,7 @@ import { signIn, useSession } from "next-auth/react";
 import { PublicKey } from "@solana/web3.js";
 
 import type { Transaction } from "@solana/web3.js";
+import { signAuthMessage } from "@/lib/sign-auth-message";
 
 declare global {
   interface Window {
@@ -168,10 +169,11 @@ function ConsentRow({
     setRevoking(true);
     setRevokeError(null);
     try {
+      const proof = await signAuthMessage("revoke-consent", userWallet);
       const res = await fetch("/api/revoke-consent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userWallet, requesterWallet: consent.requester }),
+        body: JSON.stringify({ userWallet, requesterWallet: consent.requester, ...proof }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to build transaction");

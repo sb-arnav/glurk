@@ -9,6 +9,7 @@ import {
   getGlurkConnection,
   GLURK_SYSTEM_PROGRAM_ID,
 } from '@/lib/glurk-program';
+import { verifyAuthMessage } from '@/lib/wallet-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,8 +34,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'invalid JSON body' }, { status: 400 });
   }
 
-  const { userWallet, contributionSlug, contributionTier, contributionScore } =
+  const { userWallet, contributionSlug, contributionTier, contributionScore, message, signature } =
     (payload ?? {}) as {
+      message?: unknown;
+      signature?: unknown;
       userWallet?: unknown;
       contributionSlug?: unknown;
       contributionTier?: unknown;
@@ -66,6 +69,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: `contributionTier must be one of: ${[...ALLOWED_TIERS].join(', ')}` },
       { status: 400 },
+    );
+  }
+
+  // Wallet-ownership proof: the user must have signed `glurk:consent:<wallet>:<ts>`.
+  // Without it anyone could make the app authority pay rent / build consent
+  // txs against arbitrary wallets.
+  const auth = verifyAuthMessage({
+    message: typeof message === 'string' ? message : '',
+    signature: typeof signature === 'string' ? signature : '',
+    expectedPurpose: 'consent',
+    expectedWallet: userWallet,
+  });
+  if (!auth.ok) {
+    return NextResponse.json(
+      { error: 'wallet ownership signature required' },
+      { status: 401 },
     );
   }
 
