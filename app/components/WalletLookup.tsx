@@ -38,6 +38,11 @@ export default function WalletLookup() {
       setLoading(true);
       try {
         const res = await fetch(`/api/lookup?email=${encodeURIComponent(input)}`);
+        if (res.status === 401 || res.status === 403) {
+          setError("Email lookup is limited to your own signed-in email. Paste a wallet address instead.");
+          setLoading(false);
+          return;
+        }
         if (res.status === 404) {
           setError("No Glurk identity linked to this email yet.");
           setLoading(false);

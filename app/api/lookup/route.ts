@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getServerSession } from 'next-auth';
 import { getSerializedGlurkProfile, normalizeEmail } from '@/lib/glurk-profile';
+import { authOptions } from '@/lib/auth';
+import { consumeApiKey, readApiKey } from '@/lib/api-keys';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,8 +25,34 @@ function getSupabase() {
  * This is the key API for app backends — they can check
  * "does this email have Glurk credentials?" without knowing
  * the user's wallet address.
+ *
+ * Auth (email -> wallet is PII): either
+ *   - an API key (Bearer glk_… / X-Glurk-Api-Key), metered against its quota; or
+ *   - a signed-in session, which may only look up its OWN email.
  */
 export async function GET(req: NextRequest) {
+  const apiKey = readApiKey(req, req.nextUrl);
+  let sessionEmail: string | null = null;
+  if (apiKey) {
+    const result = await consumeApiKey(apiKey);
+    if (!result.ok) {
+      const quota = result.reason === 'quota_exceeded';
+      return NextResponse.json(
+        { error: quota ? 'monthly quota exceeded for this API key' : 'invalid API key' },
+        { status: quota ? 429 : 401 },
+      );
+    }
+  } else {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'API key or sign-in required' },
+        { status: 401 },
+      );
+    }
+    sessionEmail = normalizeEmail(session.user.email);
+  }
+
   const rawEmail = req.nextUrl.searchParams.get('email');
   const email = rawEmail ? normalizeEmail(rawEmail) : null;
   if (!email) {
@@ -33,6 +62,13 @@ export async function GET(req: NextRequest) {
   // deliverability — just rejects garbage that would never match anyway.
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json({ error: 'invalid email format' }, { status: 400 });
+  }
+
+  if (sessionEmail && email !== sessionEmail) {
+    return NextResponse.json(
+      { error: 'signed-in users can only look up their own email; use an API key for others' },
+      { status: 403 },
+    );
   }
 
   try {
